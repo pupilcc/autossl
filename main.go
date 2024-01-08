@@ -7,14 +7,14 @@ import (
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"os"
 )
 
 func main() {
 	e := echo.New()
 
 	// JWT
-	//secret := os.Getenv("JWT_SECRET")
-	secret := "HBKZ9ec4vrXkbjRIn"
+	secret := os.Getenv("ADMIN_PASSWORD")
 	skipTokenMiddleware := middleware.Skip
 	jwtMiddleware := echojwt.WithConfig(echojwt.Config{
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {

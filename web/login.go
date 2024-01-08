@@ -32,10 +32,11 @@ func login(c echo.Context) error {
 	username := loginDTO.Username
 	password := loginDTO.Password
 
-	secret := os.Getenv("JWT_SECRET")
 	// Admin account
 	adminUsername := os.Getenv("ADMIN_USERNAME")
 	adminPassword := os.Getenv("ADMIN_PASSWORD")
+
+	secret := adminPassword
 
 	// Check in your db if the user exists or not
 	if username != adminUsername || password != adminPassword {
