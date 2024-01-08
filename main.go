@@ -48,7 +48,6 @@ func main() {
 
 	// Etag
 	e.Use(etag.WithConfig(etag.Config{
-		Weak: true,
 		HashFn: func(config etag.Config) hash.Hash {
 			return md5.New()
 		},
