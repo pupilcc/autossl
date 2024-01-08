@@ -6,6 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
+	etag "github.com/pablor21/echo-etag/v4"
 	"net/http"
 	"os"
 )
@@ -42,6 +43,9 @@ func main() {
 
 	// Head request support
 	e.Use(AllowHeadRequestsMiddleware())
+
+	// Etag
+	e.Use(etag.Etag())
 
 	// Start the service
 	e.Logger.Fatal(e.Start(":1323"))
