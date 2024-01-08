@@ -4,6 +4,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -31,13 +32,10 @@ func login(c echo.Context) error {
 	username := loginDTO.Username
 	password := loginDTO.Password
 
-	//secret := os.Getenv("JWT_SECRET")
-	secret := "HBKZ9ec4vrXkbjRIn"
+	secret := os.Getenv("JWT_SECRET")
 	// Admin account
-	//adminUsername := os.Getenv("ADMIN_USERNAME")
-	//adminPassword := os.Getenv("ADMIN_PASSWORD")
-	adminUsername := "admin"
-	adminPassword := "admin"
+	adminUsername := os.Getenv("ADMIN_USERNAME")
+	adminPassword := os.Getenv("ADMIN_PASSWORD")
 
 	// Check in your db if the user exists or not
 	if username != adminUsername || password != adminPassword {
