@@ -44,11 +44,12 @@ func download(c echo.Context) error {
 
 func list(c echo.Context) error {
 	certs := service.GetCerts()
-	url := os.Getenv("DOMAIN")
+	dm := os.Getenv("DOMAIN")
+	url := dm + "/ssl/dl/"
 	list := make([]domain.CertDTO, 0, len(certs))
 	for _, cert := range certs {
-		certLink := url + "/download/" + cert.Id + ".crt"
-		keyLink := url + "/download/" + cert.Id + ".key"
+		certLink := url + cert.Id + ".crt"
+		keyLink := url + cert.Id + ".key"
 		certDTO := domain.CertDTO{Name: cert.Name, Id: cert.Id, Cert: certLink, Key: keyLink}
 		list = append(list, certDTO)
 	}
