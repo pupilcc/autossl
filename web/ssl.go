@@ -3,10 +3,13 @@ package web
 import (
 	"autossl/internal/domain"
 	"autossl/internal/service"
+	"crypto/md5"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 func SSLRoutes(e *echo.Echo) {
@@ -39,7 +42,22 @@ func upload(c echo.Context) error {
 
 func download(c echo.Context) error {
 	uuid := c.Param("uuid")
-	return c.Attachment(service.CertPath+"/"+uuid, uuid)
+
+	filePath := filepath.Join(service.CertPath, uuid)
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	hash := md5.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return err
+	}
+	etag := fmt.Sprintf("%x", hash.Sum(nil))
+	c.Response().Header().Set("ETag", etag)
+
+	return c.File(filePath)
 }
 
 func list(c echo.Context) error {
