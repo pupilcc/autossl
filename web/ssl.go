@@ -12,7 +12,7 @@ import (
 func SSLRoutes(e *echo.Echo) {
 	r := e.Group("/ssl")
 	r.POST("/import", upload)
-	r.GET("/download/:uuid", download)
+	r.GET("/dl/:uuid", download)
 	r.GET("", list)
 }
 

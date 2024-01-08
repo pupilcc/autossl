@@ -3,10 +3,10 @@ package middleware
 import "github.com/labstack/echo/v4"
 
 var skipTokenPaths = map[string]bool{
-	"/":          true,
-	"/health":    true,
-	"/login":     true,
-	"/ssl/:uuid": true,
+	"/":             true,
+	"/health":       true,
+	"/login":        true,
+	"/ssl/dl/:uuid": true,
 }
 
 func Skip(c echo.Context) bool {
