@@ -1,6 +1,7 @@
 package web
 
 import (
+	"autossl/common/response"
 	"autossl/internal/domain"
 	"autossl/internal/service"
 	"fmt"
@@ -32,10 +33,11 @@ func upload(c echo.Context) error {
 
 	err = service.AddCert(certName, certFile, keyFile)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+		return c.JSON(http.StatusBadRequest, response.Message(err.Error()))
 	}
 
-	return c.String(http.StatusOK, fmt.Sprintf("Files %s and %s uploaded successfully.", certFile.Filename, keyFile.Filename))
+	msg := fmt.Sprintf("Files %s and %s uploaded successfully.", certFile.Filename, keyFile.Filename)
+	return c.JSON(http.StatusOK, response.Message(msg))
 }
 
 func download(c echo.Context) error {

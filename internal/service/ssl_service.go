@@ -1,8 +1,8 @@
 package service
 
 import (
+	"autossl/common/util"
 	"autossl/internal/domain"
-	"autossl/util"
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
