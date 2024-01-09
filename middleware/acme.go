@@ -47,7 +47,7 @@ func Issue(name string) {
 	dns := os.Getenv("ACME_DNS")
 	alias := os.Getenv("ACME_ALIAS")
 
-	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "--challenge-alias", alias)
+	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "--challenge-alias", alias, "--keylength", "2048")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		logger.Error("Running command failed", zap.String("error:", err.Error()))
