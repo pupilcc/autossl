@@ -67,7 +67,7 @@ func downloadHead(c echo.Context) error {
 func list(c echo.Context) error {
 	certs := service.GetCerts()
 	dm := os.Getenv("DOMAIN")
-	url := dm + "/ssl/dl/"
+	url := dm + "/dl/"
 	list := make([]domain.CertDTO, 0, len(certs))
 	for _, cert := range certs {
 		certLink := url + cert.Id + ".crt"
