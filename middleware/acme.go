@@ -42,7 +42,7 @@ func email() {
 	}
 }
 
-func Issue(name string) {
+func Issue(name string) error {
 	logger := GetLogger()
 	dns := os.Getenv("ACME_DNS")
 	alias := os.Getenv("ACME_ALIAS")
@@ -53,9 +53,10 @@ func Issue(name string) {
 		logger.Error("Running command failed", zap.String("error:", err.Error()))
 	}
 	fmt.Printf(string(output))
+	return err
 }
 
-func Install(name string, id string) {
+func Install(name string, id string) error {
 	logger := GetLogger()
 
 	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--install-cert", "-d", name, "--key-file", filepath.Join(service.CertPath, id+".key"), "--fullchain-file", filepath.Join(service.CertPath, id+".crt"))
@@ -65,4 +66,5 @@ func Install(name string, id string) {
 		logger.Error("Running command failed", zap.String("error:", err.Error()))
 	}
 	fmt.Printf(string(output))
+	return err
 }

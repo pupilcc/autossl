@@ -97,9 +97,19 @@ func generate(c echo.Context) error {
 		fmt.Println("错误:", err)
 	}
 
-	middleware.Issue(certCommand.Domain)
-	middleware.Install(certCommand.Domain, id)
+	err = middleware.Issue(certCommand.Domain)
+	if err != nil {
+		return err
+	}
+
+	err = middleware.Install(certCommand.Domain, id)
+	if err != nil {
+		return err
+	}
 	service.SaveUuid(certCommand.Domain, id)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
