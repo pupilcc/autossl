@@ -91,6 +91,12 @@ func generate(c echo.Context) error {
 	}
 
 	id := util.GenerateID()
+
+	err := os.MkdirAll(service.CertPath, 0755)
+	if err != nil {
+		fmt.Println("错误:", err)
+	}
+
 	middleware.Issue(certCommand.Domain)
 	middleware.Install(certCommand.Domain, id)
 	service.SaveUuid(certCommand.Domain, id)
