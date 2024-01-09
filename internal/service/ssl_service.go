@@ -1,6 +1,7 @@
 package service
 
 import (
+	"autossl/common/exception"
 	"autossl/common/util"
 	"autossl/internal/domain"
 	"crypto/md5"
@@ -21,7 +22,7 @@ func AddCert(name string, certFile *multipart.FileHeader, keyFile *multipart.Fil
 	if certs != nil {
 		for _, cert := range certs {
 			if cert.Name == name {
-				return fmt.Errorf("certificate %s already exist", name)
+				return exception.CertificateExistsErr(name)
 			}
 		}
 	}

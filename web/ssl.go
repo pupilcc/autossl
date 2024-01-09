@@ -1,6 +1,7 @@
 package web
 
 import (
+	"autossl/common/exception"
 	"autossl/common/response"
 	"autossl/common/util"
 	"autossl/internal/domain"
@@ -94,7 +95,9 @@ func generate(c echo.Context) error {
 	if certs != nil {
 		for _, cert := range certs {
 			if cert.Name == certCommand.Domain {
-				return fmt.Errorf("certificate %s already exist", certCommand.Domain)
+				err := exception.CertificateExistsErr(certCommand.Domain)
+				_ = c.JSON(http.StatusBadRequest, response.Message(err.Error()))
+				return nil
 			}
 		}
 	}
