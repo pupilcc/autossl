@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"autossl/internal/service"
-	"bytes"
 	"go.uber.org/zap"
 	"os"
 	"os/exec"
@@ -72,19 +71,10 @@ func export() {
 	account := os.Getenv("ACME_ACCOUNT")
 	token := os.Getenv("ACME_TOKEN")
 
-	cmd := exec.Command("sh", "-c", "echo $CF_EMAIL && echo $CF_KEY")
-	cmd.Env = append(cmd.Env,
-		"CF_EMAIL="+account,
-		"CF_KEY="+token,
-	)
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
+	cmd := exec.Command("sh", "-c", "echo $CF_Email && echo $CF_Key")
+	cmd.Env = []string{"CF_Email=" + account, "CF_Key=" + token}
 	err := cmd.Run()
 	if err != nil {
 		logger.Error("cmd.Start() failed with %s\n", zap.String("error", err.Error()))
-		return
 	}
-
-	logger.Info("Command %s", zap.String("Output:", out.String()))
 }
