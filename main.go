@@ -42,7 +42,4 @@ func main() {
 
 	// Start the service
 	e.Logger.Fatal(e.Start(":1323"))
-
-	// Init acme.sh
-	middleware.InitAcme()
 }
