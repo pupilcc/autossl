@@ -11,11 +11,10 @@ import (
 )
 
 func SSLRoutes(e *echo.Echo) {
-	r := e.Group("/ssl")
-	r.POST("/import", upload)
-	r.GET("/dl/:uuid", download)
-	r.HEAD("/dl/:uuid", downloadHead)
-	r.GET("", list)
+	e.POST("/import", upload)
+	e.GET("/dl/:uuid", download)
+	e.HEAD("/dl/:uuid", downloadHead)
+	e.GET("/list", list)
 }
 
 func upload(c echo.Context) error {
