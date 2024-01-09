@@ -90,6 +90,15 @@ func generate(c echo.Context) error {
 		return err
 	}
 
+	certs := service.GetCerts()
+	if certs != nil {
+		for _, cert := range certs {
+			if cert.Name == certCommand.Domain {
+				return fmt.Errorf("certificate %s already exist", certCommand.Domain)
+			}
+		}
+	}
+
 	id := util.GenerateID()
 
 	err := os.MkdirAll(service.CertPath, 0755)
@@ -111,5 +120,6 @@ func generate(c echo.Context) error {
 		return err
 	}
 
+	_ = c.JSON(http.StatusOK, response.Message(certCommand.Domain+" Certificate generated successfully."))
 	return nil
 }

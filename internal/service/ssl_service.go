@@ -21,7 +21,7 @@ func AddCert(name string, certFile *multipart.FileHeader, keyFile *multipart.Fil
 	if certs != nil {
 		for _, cert := range certs {
 			if cert.Name == name {
-				return fmt.Errorf("cert %s already exist", name)
+				return fmt.Errorf("certificate %s already exist", name)
 			}
 		}
 	}
