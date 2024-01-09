@@ -39,8 +39,6 @@ func email() {
 
 func Issue(name string) {
 	logger := GetLogger()
-	InitAcme()
-
 	produce := os.Getenv("ACME_PRODUCE")
 	alias := os.Getenv("ACME_ALIAS")
 
