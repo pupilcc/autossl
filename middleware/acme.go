@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"strings"
 )
 
 var usr, _ = user.Current()
@@ -63,6 +64,7 @@ func Install(name string, id string) {
 	}
 
 	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--install-cert", "-d", name, "--key-file", filepath.Join(service.CertPath, id+".key"), "--fullchain-file", filepath.Join(service.CertPath, id+".crt"))
+	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
 	err = cmd.Start()
