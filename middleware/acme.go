@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"autossl/internal/service"
+	"fmt"
 	"go.uber.org/zap"
 	"os"
 	"os/exec"
@@ -47,10 +48,11 @@ func Issue(name string) {
 	alias := os.Getenv("ACME_ALIAS")
 
 	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "--challenge-alias", alias)
-	_, err := cmd.CombinedOutput()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		logger.Error("Running command failed with %s\n", zap.String("error", err.Error()))
+		logger.Error("Running command failed", zap.String("error:", err.Error()))
 	}
+	fmt.Printf(string(output))
 }
 
 func Install(name string, id string) {
@@ -58,8 +60,9 @@ func Install(name string, id string) {
 
 	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--install-cert", "-d", name, "--key-file", filepath.Join(service.CertPath, id+".key"), "--fullchain-file", filepath.Join(service.CertPath, id+".crt"))
 	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
-	_, err := cmd.CombinedOutput()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		logger.Error("Running command failed with %s\n", zap.String("error", err.Error()))
+		logger.Error("Running command failed", zap.String("error:", err.Error()))
 	}
+	fmt.Printf(string(output))
 }
