@@ -56,7 +56,7 @@ func Issue(name string) {
 
 func Install(name string, id string) {
 	logger := GetLogger()
-	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--install-cert", "-d", name, "--key-file", service.CertPath+id+".key", "--fullchain-file", service.CertPath+id+".crt")
+	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--install-cert", "-d", name, "--key-file", filepath.Join(service.CertPath, id+".key"), "--fullchain-file", filepath.Join(service.CertPath, id+".crt"))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
 	err := cmd.Start()
