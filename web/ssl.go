@@ -2,8 +2,10 @@ package web
 
 import (
 	"autossl/common/response"
+	"autossl/common/util"
 	"autossl/internal/domain"
 	"autossl/internal/service"
+	"autossl/middleware"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -16,6 +18,7 @@ func SSLRoutes(e *echo.Echo) {
 	e.GET("/dl/:uuid", download)
 	e.HEAD("/dl/:uuid", downloadHead)
 	e.GET("/list", list)
+	e.POST("/generate", generate)
 }
 
 func upload(c echo.Context) error {
@@ -78,5 +81,19 @@ func list(c echo.Context) error {
 		list = append(list, certDTO)
 	}
 	_ = c.JSON(http.StatusOK, list)
+	return nil
+}
+
+func generate(c echo.Context) error {
+	var certCommand *domain.CertCommand
+	if err := c.Bind(&certCommand); err != nil {
+		return err
+	}
+
+	id := util.GenerateID()
+	middleware.Issue(certCommand.Domain)
+	middleware.Install(certCommand.Domain, id)
+	service.SaveUuid(certCommand.Domain, id)
+
 	return nil
 }

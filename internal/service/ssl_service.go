@@ -28,7 +28,7 @@ func AddCert(name string, certFile *multipart.FileHeader, keyFile *multipart.Fil
 
 	id := util.GenerateID()
 
-	saveUuid(id, name)
+	SaveUuid(name, id)
 
 	err := uploadFile(id, certFile, keyFile)
 	if err != nil {
@@ -78,7 +78,7 @@ func uploadFile(id string, certFile *multipart.FileHeader, keyFile *multipart.Fi
 	return nil
 }
 
-func saveUuid(id string, name string) {
+func SaveUuid(name string, id string) {
 	certs := GetCerts()
 	if certs == nil {
 		certs = []domain.Cert{{Name: name, Id: id}}
