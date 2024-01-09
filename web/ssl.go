@@ -3,10 +3,8 @@ package web
 import (
 	"autossl/internal/domain"
 	"autossl/internal/service"
-	"crypto/md5"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -16,6 +14,7 @@ func SSLRoutes(e *echo.Echo) {
 	r := e.Group("/ssl")
 	r.POST("/import", upload)
 	r.GET("/dl/:uuid", download)
+	r.HEAD("/dl/:uuid", downloadHead)
 	r.GET("", list)
 }
 
@@ -42,22 +41,28 @@ func upload(c echo.Context) error {
 
 func download(c echo.Context) error {
 	uuid := c.Param("uuid")
-
 	filePath := filepath.Join(service.CertPath, uuid)
-	file, err := os.Open(filePath)
+
+	etag, err := service.Etag(filePath)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
-
-	hash := md5.New()
-	if _, err := io.Copy(hash, file); err != nil {
-		return err
-	}
-	etag := fmt.Sprintf("%x", hash.Sum(nil))
 	c.Response().Header().Set("ETag", etag)
 
 	return c.File(filePath)
+}
+
+func downloadHead(c echo.Context) error {
+	uuid := c.Param("uuid")
+	filePath := filepath.Join(service.CertPath, uuid)
+
+	etag, err := service.Etag(filePath)
+	if err != nil {
+		return err
+	}
+	c.Response().Header().Set("ETag", etag)
+
+	return c.NoContent(http.StatusOK)
 }
 
 func list(c echo.Context) error {

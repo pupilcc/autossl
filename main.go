@@ -40,21 +40,6 @@ func main() {
 	// Logger
 	e.Use(middleware.RequestLogger())
 
-	// Head request support
-	e.Use(AllowHeadRequestsMiddleware())
-
 	// Start the service
 	e.Logger.Fatal(e.Start(":1323"))
-}
-
-func AllowHeadRequestsMiddleware() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			if c.Request().Method == echo.HEAD {
-				c.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTMLCharsetUTF8)
-				return c.NoContent(http.StatusOK)
-			}
-			return next(c)
-		}
-	}
 }

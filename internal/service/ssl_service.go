@@ -3,6 +3,7 @@ package service
 import (
 	"autossl/internal/domain"
 	"autossl/util"
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -120,4 +121,20 @@ func GetCerts() []domain.Cert {
 	}
 
 	return certs
+}
+
+func Etag(filePath string) (string, error) {
+	etag := ""
+	file, err := os.Open(filePath)
+	if err != nil {
+		return etag, err
+	}
+	defer file.Close()
+
+	hash := md5.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return etag, err
+	}
+	etag = fmt.Sprintf("%x", hash.Sum(nil))
+	return etag, nil
 }
