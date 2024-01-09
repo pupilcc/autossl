@@ -40,9 +40,9 @@ func main() {
 	// Logger
 	e.Use(middleware.RequestLogger())
 
-	// Start the service
-	e.Logger.Fatal(e.Start(":1323"))
-
 	// Init acme.sh
 	middleware.InitAcme()
+
+	// Start the service
+	e.Logger.Fatal(e.Start(":1323"))
 }
