@@ -28,13 +28,6 @@ func RequestLogger() echo.MiddlewareFunc {
 					status,
 					zap.String("error", v.Error.Error()),
 				)
-			} else {
-				logger.Info("request",
-					time,
-					uri,
-					method,
-					status,
-				)
 			}
 			return nil
 		},
