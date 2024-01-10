@@ -20,6 +20,7 @@ func SSLRoutes(e *echo.Echo) {
 	e.HEAD("/dl/:uuid", downloadHead)
 	e.GET("/list", list)
 	e.POST("/generate", generate)
+	e.DELETE("/:uuid", remove)
 }
 
 func upload(c echo.Context) error {
@@ -125,4 +126,17 @@ func generate(c echo.Context) error {
 
 	_ = c.JSON(http.StatusOK, response.Message(certCommand.Domain+" Certificate generated successfully."))
 	return nil
+}
+
+func remove(c echo.Context) error {
+	uuid := c.Param("uuid")
+	err := service.RemoveUUID(uuid)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Message(err.Error()))
+	}
+	err = service.RemoveFiles(uuid)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Message(err.Error()))
+	}
+	return c.JSON(http.StatusOK, response.Message("Certificate removed successfully."))
 }

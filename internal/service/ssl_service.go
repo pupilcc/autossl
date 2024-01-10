@@ -52,10 +52,7 @@ func uploadFile(id string, certFile *multipart.FileHeader, keyFile *multipart.Fi
 	}
 	defer keySrc.Close()
 
-	err = os.MkdirAll(CertPath, 0755)
-	if err != nil {
-		fmt.Println("错误:", err)
-	}
+	_ = os.MkdirAll(CertPath, 0755)
 	certDst, err := os.Create(filepath.Join(CertPath, id+".crt"))
 	if err != nil {
 		return err
@@ -68,7 +65,6 @@ func uploadFile(id string, certFile *multipart.FileHeader, keyFile *multipart.Fi
 	}
 	defer keyDst.Close()
 
-	// 将源文件内容复制到目标文件
 	if _, err = io.Copy(certDst, certSrc); err != nil {
 		return err
 	}
@@ -88,37 +84,28 @@ func SaveUuid(name string, id string) {
 		certs = append(certs, cert)
 	}
 
-	jsonData, err := json.Marshal(certs)
+	err := writeFile(certs)
 	if err != nil {
-		fmt.Println("转换为 JSON 失败：", err)
-	}
-
-	err = os.WriteFile(UuidPath, jsonData, 0644)
-	if err != nil {
-		fmt.Println("写入文件失败：", err)
+		fmt.Println("Write file fail: ", err)
 	}
 }
 
 func GetCerts() []domain.Cert {
-	// 判断文件是否存在
 	_, err := os.Stat(UuidPath)
 	if os.IsNotExist(err) {
 		return nil
 	}
 
-	// 存在则读取 map
 	_ = fmt.Sprintf("File exists")
-	// 从文件中读取 JSON
 	jsonDataFromFile, err := os.ReadFile(UuidPath)
 	if err != nil {
-		fmt.Println("读取文件失败：", err)
+		fmt.Println("Read file fail: ", err)
 	}
 
-	// 将 JSON 解析回 map
 	certs := make([]domain.Cert, 1)
 	err = json.Unmarshal(jsonDataFromFile, &certs)
 	if err != nil {
-		fmt.Println("解析 JSON 失败：", err)
+		fmt.Println("parse json fail: ", err)
 	}
 
 	return certs
@@ -138,4 +125,52 @@ func Etag(filePath string) (string, error) {
 	}
 	etag = fmt.Sprintf("%x", hash.Sum(nil))
 	return etag, nil
+}
+
+func RemoveUUID(id string) error {
+	certs := GetCerts()
+	if certs == nil {
+		return nil
+	}
+	for i, cert := range certs {
+		if cert.Id == id {
+			certs[i] = certs[len(certs)-1]
+			certs[len(certs)-1] = domain.Cert{}
+			certs = certs[:len(certs)-1]
+			break
+		}
+	}
+	err := writeFile(certs)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func RemoveFiles(id string) error {
+	certPath := filepath.Join(CertPath, id+".crt")
+	keyPath := filepath.Join(CertPath, id+".key")
+
+	filePaths := []string{certPath, keyPath}
+
+	for _, filePath := range filePaths {
+		err := os.Remove(filePath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func writeFile(certs []domain.Cert) error {
+	jsonData, err := json.Marshal(certs)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(UuidPath, jsonData, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }
