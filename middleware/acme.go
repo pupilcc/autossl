@@ -16,6 +16,7 @@ var usr, _ = user.Current()
 func InitAcme() {
 	ca()
 	email()
+	upgrade()
 }
 
 func ca() {
@@ -34,6 +35,17 @@ func email() {
 	logger := GetLogger()
 	email := os.Getenv("ACME_EMAIL")
 	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--update-account", "--email", email)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stdout
+	err := cmd.Start()
+	if err != nil {
+		logger.Error("cmd.Start() failed with %s\n", zap.String("error", err.Error()))
+	}
+}
+
+func upgrade() {
+	logger := GetLogger()
+	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--upgrade", "--auto-upgrade")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
 	err := cmd.Start()
