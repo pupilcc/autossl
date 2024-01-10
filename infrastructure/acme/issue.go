@@ -27,7 +27,20 @@ func Install(name string, id string) error {
 func Remove(name string) error {
 	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--remove", "--domain", name)
 	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
-	return execIssue(cmd)
+	err := execIssue(cmd)
+	if err != nil {
+		return err
+	}
+
+	folder := filepath.Join("./.acme.sh", name)
+	filePaths := []string{folder}
+	for _, filePath := range filePaths {
+		err := os.Remove(filePath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func execIssue(cmd *exec.Cmd) error {
