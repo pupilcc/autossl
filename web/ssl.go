@@ -130,13 +130,27 @@ func generate(c echo.Context) error {
 
 func remove(c echo.Context) error {
 	uuid := c.Param("uuid")
+
 	err := service.RemoveUUID(uuid)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.Message(err.Error()))
 	}
+
 	err = service.RemoveFiles(uuid)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.Message(err.Error()))
 	}
+
+	certs := service.GetCerts()
+	certMap := make(map[string]domain.Cert)
+	for _, cert := range certs {
+		certMap[cert.Id] = cert
+	}
+	if cert, exists := certMap[uuid]; exists {
+		if err := middleware.Remove(cert.Name); err != nil {
+			return c.JSON(http.StatusBadRequest, response.Message(err.Error()))
+		}
+	}
+
 	return c.JSON(http.StatusOK, response.Message("Certificate removed successfully."))
 }

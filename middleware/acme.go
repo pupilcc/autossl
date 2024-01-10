@@ -106,3 +106,29 @@ func Install(name string, id string) error {
 	}
 	return err
 }
+
+func Remove(name string) error {
+	logger := GetLogger()
+
+	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--remove", "--domain", name)
+	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		logger.Error("cmd.StdoutPipe() running command failed", zap.String("error:", err.Error()))
+	}
+	if err = cmd.Start(); err != nil {
+		logger.Error("cmd.Start() running command failed", zap.String("error:", err.Error()))
+	}
+	for {
+		tmp := make([]byte, 1024)
+		_, err := stdout.Read(tmp)
+		fmt.Print(string(tmp))
+		if err != nil {
+			break
+		}
+	}
+	if err := cmd.Wait(); err != nil {
+		logger.Error("cmd.Wait() running command failed", zap.String("error:", err.Error()))
+	}
+	return err
+}
