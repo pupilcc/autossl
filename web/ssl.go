@@ -92,14 +92,14 @@ func generate(c echo.Context) error {
 	}
 
 	certs := service.GetCerts()
-	if certs != nil {
-		for _, cert := range certs {
-			if cert.Name == certCommand.Domain {
-				err := exception.CertificateExistsErr(certCommand.Domain)
-				_ = c.JSON(http.StatusBadRequest, response.Message(err.Error()))
-				return nil
-			}
-		}
+	existingCerts := make(map[string]struct{})
+	for _, cert := range certs {
+		existingCerts[cert.Name] = struct{}{}
+	}
+	if _, exists := existingCerts[certCommand.Domain]; exists {
+		err := exception.CertificateExistsErr(certCommand.Domain)
+		_ = c.JSON(http.StatusBadRequest, response.Message(err.Error()))
+		return nil
 	}
 
 	id := util.GenerateID()

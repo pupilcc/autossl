@@ -6,7 +6,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
-	"net/http"
 	"os"
 )
 
@@ -26,14 +25,7 @@ func main() {
 	e.Use(jwtMiddleware)
 
 	// Routes
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
-	e.GET("/health", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"status": "UP",
-		})
-	})
+	web.IndexRoutes(e)
 	web.SSLRoutes(e)
 	web.LoginRoutes(e)
 
