@@ -57,7 +57,7 @@ func GetLogger() *zap.Logger {
 	}
 
 	atomicLevel := zap.NewAtomicLevel()
-	atomicLevel.SetLevel(zap.ErrorLevel)
+	atomicLevel.SetLevel(zap.InfoLevel)
 
 	config := zap.Config{
 		Level:            atomicLevel,
