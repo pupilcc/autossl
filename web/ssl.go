@@ -4,9 +4,9 @@ import (
 	"autossl/common/exception"
 	"autossl/common/response"
 	"autossl/common/util"
+	"autossl/infrastructure/acme"
 	"autossl/internal/domain"
 	"autossl/internal/service"
-	"autossl/middleware"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -110,12 +110,12 @@ func generate(c echo.Context) error {
 		fmt.Println("错误:", err)
 	}
 
-	err = middleware.Issue(certCommand.Domain)
+	err = acme.Issue(certCommand.Domain)
 	if err != nil {
 		return err
 	}
 
-	err = middleware.Install(certCommand.Domain, id)
+	err = acme.Install(certCommand.Domain, id)
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func remove(c echo.Context) error {
 		certMap[cert.Id] = cert
 	}
 	if cert, exists := certMap[uuid]; exists {
-		if err := middleware.Remove(cert.Name); err != nil {
+		if err := acme.Remove(cert.Name); err != nil {
 			return c.JSON(http.StatusBadRequest, response.Message(err.Error()))
 		}
 	}

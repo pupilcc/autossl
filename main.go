@@ -1,6 +1,7 @@
 package main
 
 import (
+	"autossl/infrastructure/acme"
 	"autossl/middleware"
 	"autossl/web"
 	"github.com/golang-jwt/jwt/v5"
@@ -33,7 +34,7 @@ func main() {
 	e.Use(middleware.RequestLogger())
 
 	// Init acme.sh
-	middleware.InitAcme()
+	acme.InitAcme()
 
 	// Start the service
 	e.Logger.Fatal(e.Start(":1323"))
