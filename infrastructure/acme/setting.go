@@ -1,7 +1,7 @@
 package acme
 
 import (
-	"autossl/middleware"
+	"autossl/module"
 	"go.uber.org/zap"
 	"os"
 	"os/exec"
@@ -10,7 +10,7 @@ import (
 )
 
 var usr, _ = user.Current()
-var logger = middleware.GetLogger()
+var logger = module.GetLogger()
 
 func InitAcme() {
 	ca()
