@@ -40,7 +40,7 @@ func login(c echo.Context) error {
 
 	// Check in your db if the user exists or not
 	if username != adminUsername || password != adminPassword {
-		return echo.ErrUnauthorized
+		return echo.NewHTTPError(http.StatusUnauthorized, "wrong username or password")
 	}
 
 	claims := &JWTCustomClaims{
