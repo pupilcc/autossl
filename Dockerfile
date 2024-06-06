@@ -14,4 +14,4 @@ RUN curl https://get.acme.sh | sh
 WORKDIR /root/
 COPY --from=builder /go/bin/autossl .
 EXPOSE 1323
-ENTRYPOINT cron && /autossl
+ENTRYPOINT cron && ./autossl
