@@ -7,6 +7,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
+	"github.com/robfig/cron/v3"
+	"log"
 	"os"
 )
 
@@ -35,6 +37,18 @@ func main() {
 
 	// Init acme.sh
 	acme.InitAcme()
+	// Acme Cron
+	c := cron.New()
+	_, err := c.AddFunc("30 1 * * *", func() {
+		err := acme.Cron()
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.Start()
 
 	// Start the service
 	e.Logger.Fatal(e.Start(":1323"))

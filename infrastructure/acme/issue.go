@@ -43,6 +43,12 @@ func Remove(name string) error {
 	return nil
 }
 
+func Cron() error {
+	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--cron", "--home", filepath.Join(usr.HomeDir, ".acme.sh"))
+	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
+	return execIssue(cmd)
+}
+
 func execIssue(cmd *exec.Cmd) error {
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
