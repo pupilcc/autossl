@@ -4,7 +4,7 @@ import (
 	"autossl/infrastructure/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/glebarez/sqlite"
 	"log"
 	"time"
 )
