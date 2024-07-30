@@ -2,17 +2,19 @@ package config
 
 import "github.com/labstack/echo/v4"
 
-var skipTokenPaths = map[string]bool{
-	"/":         true,
-	"/health":   true,
-	"/login":    true,
-	"/dl/:uuid": true,
+var skipTokenPaths = []string{
+	"/",
+	"/health",
+	"/login",
+	"/dl/:code",
 }
 
 func Skip(c echo.Context) bool {
 	path := c.Path()
-	if _, ok := skipTokenPaths[path]; ok {
-		return true
+	for _, p := range skipTokenPaths {
+		if path == p {
+			return true
+		}
 	}
 
 	return false
