@@ -15,8 +15,6 @@ import (
 	"path/filepath"
 )
 
-var CertPath = "./data/cert"
-
 func ExistCert(domain string) bool {
 	repo := &repository.CertRepo{
 		Db: database.Init(),
@@ -30,7 +28,7 @@ func ExistCert(domain string) bool {
 }
 
 func CreateCert(domain string, code string) error {
-	err := os.MkdirAll(CertPath, 0755)
+	err := os.MkdirAll(acme.CertPath, 0755)
 	if err != nil {
 		return err
 	}
@@ -135,8 +133,8 @@ func Etag(filePath string) (string, error) {
 }
 
 func deleteFiles(code string) error {
-	certPath := filepath.Join(CertPath, code+".crt")
-	keyPath := filepath.Join(CertPath, code+".key")
+	certPath := filepath.Join(acme.CertPath, code+".crt")
+	keyPath := filepath.Join(acme.CertPath, code+".key")
 
 	filePaths := []string{certPath, keyPath}
 
@@ -162,14 +160,14 @@ func uploadFile(code string, certFile *multipart.FileHeader, keyFile *multipart.
 	}
 	defer keySrc.Close()
 
-	_ = os.MkdirAll(CertPath, 0755)
-	certDst, err := os.Create(filepath.Join(CertPath, code+".crt"))
+	_ = os.MkdirAll(acme.CertPath, 0755)
+	certDst, err := os.Create(filepath.Join(acme.CertPath, code+".crt"))
 	if err != nil {
 		return err
 	}
 	defer certDst.Close()
 
-	keyDst, err := os.Create(filepath.Join(CertPath, code+".key"))
+	keyDst, err := os.Create(filepath.Join(acme.CertPath, code+".key"))
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,6 @@
 package acme
 
 import (
-	"autossl/domain/service"
 	"fmt"
 	"go.uber.org/zap"
 	"os"
@@ -9,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 )
+
+var CertPath = "./data/cert"
 
 func Issue(name string) error {
 	dns := os.Getenv("ACME_DNS")
@@ -19,7 +20,7 @@ func Issue(name string) error {
 }
 
 func Install(name string, id string) error {
-	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--install-cert", "-d", name, "--key-file", filepath.Join(service.CertPath, id+".key"), "--fullchain-file", filepath.Join(service.CertPath, id+".crt"))
+	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--install-cert", "-d", name, "--key-file", filepath.Join(CertPath, id+".key"), "--fullchain-file", filepath.Join(CertPath, id+".crt"))
 	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
 	return execIssue(cmd)
 }
