@@ -13,24 +13,24 @@ var usr, _ = user.Current()
 var logger = config.GetLogger()
 
 func InitAcme() {
-	Upgrade()
-	ChangeCA()
-	UseEmail()
+	upgrade()
+	ca()
+	email()
 }
 
-func ChangeCA() {
+func ca() {
 	ca := os.Getenv("ACME_CA")
 	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--set-default-ca", "--server", ca)
 	execSetting(cmd)
 }
 
-func UseEmail() {
+func email() {
 	email := os.Getenv("ACME_EMAIL")
 	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--update-account", "--email", email)
 	execSetting(cmd)
 }
 
-func Upgrade() {
+func upgrade() {
 	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--upgrade", "--auto-upgrade")
 	execSetting(cmd)
 }
