@@ -8,7 +8,7 @@ COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -a -o /go/bin/autossl .
 
 FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y ca-certificates curl openssl
+RUN apt-get update && apt-get install -y ca-certificates curl openssl cron
 RUN curl https://get.acme.sh | sh
 WORKDIR /root/
 COPY --from=builder /go/bin/autossl .
