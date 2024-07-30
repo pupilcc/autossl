@@ -13,9 +13,9 @@ var usr, _ = user.Current()
 var logger = config.GetLogger()
 
 func InitAcme() {
+	upgrade()
 	ca()
 	email()
-	upgrade()
 }
 
 func ca() {
