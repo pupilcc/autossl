@@ -10,7 +10,7 @@ import (
 )
 
 func Init() *ent.Client {
-	drv, err := sql.Open(dialect.SQLite, "/root/data/autossl.db:ent?mode=memory&cache=shared&_fk=1")
+	drv, err := sql.Open(dialect.SQLite, "/root/data/autossl.db?mode=memory&cache=shared&_fk=1")
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
