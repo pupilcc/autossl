@@ -1,12 +1,14 @@
 FROM golang:1.21.1 as builder
+
+RUN apt-get update && apt-get install -y gcc libc6-dev
+
 WORKDIR /go/src/autossl
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/autossl .
 
-FROM alpine:latest
+RUN CGO_ENABLED=1 GOOS=linux go build -a -o /go/bin/autossl .
 
 RUN apk --no-cache add ca-certificates curl openssl
 RUN curl https://get.acme.sh | sh
