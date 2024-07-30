@@ -7,6 +7,7 @@ import (
 type CertRepository interface {
 	Create(cert *model.Cert) error
 	FindByDomain(domain string) (*model.Cert, error)
+	FindByCode(code string) (*model.Cert, error)
 	List() ([]*model.Cert, error)
 	Delete(code string) error
 }

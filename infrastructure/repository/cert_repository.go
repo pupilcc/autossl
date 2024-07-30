@@ -29,6 +29,14 @@ func (repo *CertRepo) FindByDomain(domain string) (*model.Cert, error) {
 	return ToModelCert(first), err
 }
 
+func (repo *CertRepo) FindByCode(code string) (*model.Cert, error) {
+	first, err := repo.Db.Cert.Query().Where(cert.CodeEQ(code)).Only(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return ToModelCert(first), err
+}
+
 func (repo *CertRepo) List() ([]*model.Cert, error) {
 	q := repo.Db.Cert.Query().
 		Order(ent.Desc(cert.FieldCreatedAt))

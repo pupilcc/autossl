@@ -100,15 +100,27 @@ func ListCert() ([]*model.Cert, error) {
 }
 
 func DeleteCert(code string) error {
+	var err error
 	repo := &repository.CertRepo{
 		Db: database.Init(),
 	}
-	err := repo.Delete(code)
+
+	byCode, err := repo.FindByCode(code)
+	if err != nil {
+		return err
+	}
+
+	err = acme.Remove(byCode.Domain)
 	if err != nil {
 		return err
 	}
 
 	err = deleteFiles(code)
+	if err != nil {
+		return err
+	}
+
+	err = repo.Delete(code)
 	if err != nil {
 		return err
 	}

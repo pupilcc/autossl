@@ -3,6 +3,7 @@ package application
 import (
 	"autossl/domain/model"
 	"autossl/domain/service"
+	"autossl/infrastructure/acme"
 	"autossl/infrastructure/exception"
 	"autossl/infrastructure/util"
 	"github.com/labstack/echo/v4"
@@ -74,7 +75,7 @@ func Upload(c echo.Context) error {
 
 func Download(c echo.Context) error {
 	code := c.Param("code")
-	filePath := filepath.Join(service.CertPath, code)
+	filePath := filepath.Join(acme.CertPath, code)
 
 	etag, err := service.Etag(filePath)
 	if err != nil {
@@ -87,7 +88,7 @@ func Download(c echo.Context) error {
 
 func DownloadHead(c echo.Context) error {
 	code := c.Param("code")
-	filePath := filepath.Join(service.CertPath, code)
+	filePath := filepath.Join(acme.CertPath, code)
 
 	etag, err := service.Etag(filePath)
 	if err != nil {
