@@ -49,7 +49,7 @@ volumes:
 
 Run the following command to start the service:
 ```sh
-    docker-compose up -d
+docker-compose up -d
 ```
 
 ### Configuration
