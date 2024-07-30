@@ -1,9 +1,10 @@
 package main
 
 import (
+	"autossl/api"
+	"autossl/config"
 	"autossl/infrastructure/acme"
-	"autossl/module"
-	"autossl/web"
+	"autossl/infrastructure/database"
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
@@ -17,23 +18,26 @@ func main() {
 
 	// JWT
 	secret := os.Getenv("ADMIN_PASSWORD")
-	skipTokenMiddleware := module.Skip
+	skipTokenMiddleware := config.Skip
 	jwtMiddleware := echojwt.WithConfig(echojwt.Config{
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
-			return new(web.JWTCustomClaims)
+			return new(api.JWTCustomClaims)
 		},
 		SigningKey: []byte(secret),
 		Skipper:    skipTokenMiddleware,
 	})
 	e.Use(jwtMiddleware)
 
-	// Routes
-	web.IndexRoutes(e)
-	web.SSLRoutes(e)
-	web.LoginRoutes(e)
+	// database
+	database.AutoMigrate()
 
 	// Logger
-	e.Use(module.RequestLogger())
+	e.Use(config.RequestLogger())
+
+	// Routes
+	api.IndexRoutes(e)
+	api.SSLRoutes(e)
+	api.LoginRoutes(e)
 
 	// Init acme.sh
 	acme.InitAcme()

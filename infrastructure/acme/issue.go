@@ -1,7 +1,7 @@
 package acme
 
 import (
-	"autossl/internal/service"
+	"autossl/domain/service"
 	"fmt"
 	"go.uber.org/zap"
 	"os"

@@ -1,7 +1,7 @@
 package acme
 
 import (
-	"autossl/module"
+	"autossl/config"
 	"go.uber.org/zap"
 	"os"
 	"os/exec"
@@ -10,7 +10,7 @@ import (
 )
 
 var usr, _ = user.Current()
-var logger = module.GetLogger()
+var logger = config.GetLogger()
 
 func InitAcme() {
 	ca()

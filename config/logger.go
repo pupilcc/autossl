@@ -1,4 +1,4 @@
-package module
+package config
 
 import (
 	"github.com/labstack/echo/v4"

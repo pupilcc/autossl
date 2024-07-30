@@ -6,6 +6,6 @@ const (
 	CertificateExists = "certificate for %s already exists"
 )
 
-func CertificateExistsErr(name string) error {
-	return fmt.Errorf(CertificateExists, name)
+func CertificateExistsErr(domain string) error {
+	return fmt.Errorf(CertificateExists, domain)
 }
