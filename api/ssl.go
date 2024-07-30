@@ -7,8 +7,8 @@ import (
 
 func SSLRoutes(e *echo.Echo) {
 	e.POST("/import", upload)
-	e.GET("/dl/:code", download)
-	e.HEAD("/dl/:code", downloadHead)
+	e.GET("/dl/:file", download)
+	e.HEAD("/dl/:file", downloadHead)
 	e.GET("/list", list)
 	e.POST("/generate", generate)
 	e.DELETE("/:code", remove)

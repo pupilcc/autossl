@@ -74,8 +74,8 @@ func Upload(c echo.Context) error {
 }
 
 func Download(c echo.Context) error {
-	code := c.Param("code")
-	filePath := filepath.Join(acme.CertPath, code)
+	file := c.Param("file")
+	filePath := filepath.Join(acme.CertPath, file)
 
 	etag, err := service.Etag(filePath)
 	if err != nil {
@@ -87,8 +87,8 @@ func Download(c echo.Context) error {
 }
 
 func DownloadHead(c echo.Context) error {
-	code := c.Param("code")
-	filePath := filepath.Join(acme.CertPath, code)
+	file := c.Param("file")
+	filePath := filepath.Join(acme.CertPath, file)
 
 	etag, err := service.Etag(filePath)
 	if err != nil {

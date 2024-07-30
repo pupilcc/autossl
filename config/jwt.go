@@ -6,7 +6,7 @@ var skipTokenPaths = []string{
 	"/",
 	"/health",
 	"/login",
-	"/dl/:code",
+	"/dl/:file",
 }
 
 func Skip(c echo.Context) bool {
