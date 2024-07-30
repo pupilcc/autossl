@@ -40,9 +40,7 @@ func main() {
 	api.LoginRoutes(e)
 
 	// Init acme.sh
-	acme.Upgrade()
-	acme.ChangeCA()
-	acme.UseEmail()
+	acme.InitAcme()
 	// Acme Cron
 	c := cron.New()
 	_, err := c.AddFunc("30 1 * * *", func() {
