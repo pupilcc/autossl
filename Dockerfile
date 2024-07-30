@@ -7,7 +7,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -a -o /go/bin/autossl .
 
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y ca-certificates curl openssl \
     && rm -rf /var/lib/apt/lists/*
 RUN curl https://get.acme.sh | sh
