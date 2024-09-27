@@ -6,7 +6,7 @@ import (
 )
 
 func AutoMigrate() {
-	client := Init()
+	client := initDB()
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
