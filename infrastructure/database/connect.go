@@ -6,10 +6,23 @@ import (
 	"entgo.io/ent/dialect/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
+	"sync"
 	"time"
 )
 
-func Init() *ent.Client {
+var (
+	dbClient *ent.Client
+	once     sync.Once
+)
+
+func GetDBClient() *ent.Client {
+	once.Do(func() {
+		dbClient = initDB()
+	})
+	return dbClient
+}
+
+func initDB() *ent.Client {
 	drv, err := sql.Open(dialect.SQLite, "/root/data/autossl.db?mode=memory&cache=shared&_fk=1")
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)

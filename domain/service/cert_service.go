@@ -3,7 +3,6 @@ package service
 import (
 	"autossl/domain/model"
 	"autossl/infrastructure/acme"
-	"autossl/infrastructure/database"
 	"autossl/infrastructure/exception"
 	"autossl/infrastructure/repository"
 	"autossl/infrastructure/util"
@@ -16,9 +15,7 @@ import (
 )
 
 func ExistCert(domain string) bool {
-	repo := &repository.CertRepo{
-		Db: database.Init(),
-	}
+	repo := repository.GetCertRepo()
 
 	byDomain, err := repo.FindByDomain(domain)
 	if err != nil {
@@ -43,9 +40,7 @@ func CreateCert(domain string, code string) error {
 		return err
 	}
 
-	repo := &repository.CertRepo{
-		Db: database.Init(),
-	}
+	repo := repository.GetCertRepo()
 	cert := &model.Cert{
 		Code:   code,
 		Domain: domain,
@@ -79,9 +74,7 @@ func ImportCert(domainName string, certFile *multipart.FileHeader, keyFile *mult
 }
 
 func ListCert() ([]*model.Cert, error) {
-	repo := &repository.CertRepo{
-		Db: database.Init(),
-	}
+	repo := repository.GetCertRepo()
 	list, err := repo.List()
 	if err != nil {
 		return nil, err
@@ -101,9 +94,7 @@ func ListCert() ([]*model.Cert, error) {
 
 func DeleteCert(code string) error {
 	var err error
-	repo := &repository.CertRepo{
-		Db: database.Init(),
-	}
+	repo := repository.GetCertRepo()
 
 	byCode, err := repo.FindByCode(code)
 	if err != nil {

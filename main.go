@@ -30,6 +30,11 @@ func main() {
 
 	// database
 	database.AutoMigrate()
+	defer func() {
+		if err := database.GetDBClient().Close(); err != nil {
+			log.Printf("Failed to close database connection: %v", err)
+		}
+	}()
 
 	// Logger
 	e.Use(config.RequestLogger())

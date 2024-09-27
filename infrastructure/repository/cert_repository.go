@@ -2,6 +2,7 @@ package repository
 
 import (
 	"autossl/domain/model"
+	"autossl/infrastructure/database"
 	"autossl/infrastructure/ent"
 	"autossl/infrastructure/ent/cert"
 	"context"
@@ -9,6 +10,17 @@ import (
 
 type CertRepo struct {
 	Db *ent.Client
+}
+
+var certRepo *CertRepo
+
+func GetCertRepo() *CertRepo {
+	if certRepo == nil {
+		certRepo = &CertRepo{
+			Db: database.GetDBClient(),
+		}
+	}
+	return certRepo
 }
 
 func (repo *CertRepo) Create(cert *model.Cert) error {
