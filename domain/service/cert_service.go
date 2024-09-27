@@ -101,17 +101,17 @@ func DeleteCert(code string) error {
 		return err
 	}
 
+	err = repo.Delete(code)
+	if err != nil {
+		return err
+	}
+
 	err = acme.Remove(byCode.Domain)
 	if err != nil {
 		return err
 	}
 
 	err = deleteFiles(code)
-	if err != nil {
-		return err
-	}
-
-	err = repo.Delete(code)
 	if err != nil {
 		return err
 	}
