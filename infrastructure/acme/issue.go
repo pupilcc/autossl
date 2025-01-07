@@ -24,7 +24,14 @@ func Issue(name string) error {
 	} else {
 		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "--challenge-alias", alias, "--keylength", "2048")
 	}
-	return execIssue(cmd)
+
+	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
+	err := execIssue(cmd)
+	if err != nil {
+		logger.Error("acme.Issue() running command failed", zap.String("error:", err.Error()))
+		return err
+	}
+	return nil
 }
 
 func Install(name string, id string) error {
