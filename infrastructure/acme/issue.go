@@ -2,11 +2,12 @@ package acme
 
 import (
 	"fmt"
-	"go.uber.org/zap"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 var CertPath = "./data/cert"
@@ -15,7 +16,14 @@ func Issue(name string) error {
 	dns := os.Getenv("ACME_DNS")
 	alias := os.Getenv("ACME_ALIAS")
 
-	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "--challenge-alias", alias, "--keylength", "2048")
+	parts := strings.Split(name, ".")
+
+	var cmd *exec.Cmd
+	if len(parts) == 2 {
+		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "-d", "www."+name, "--challenge-alias", alias, "--keylength", "2048")
+	} else {
+		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "--challenge-alias", alias, "--keylength", "2048")
+	}
 	return execIssue(cmd)
 }
 
