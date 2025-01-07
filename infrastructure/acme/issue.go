@@ -63,17 +63,40 @@ func execIssue(cmd *exec.Cmd) error {
 	if err != nil {
 		logger.Error("cmd.StdoutPipe() running command failed", zap.String("error:", err.Error()))
 	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		logger.Error("cmd.StderrPipe() running command failed", zap.String("error:", err.Error()))
+	}
 	if err = cmd.Start(); err != nil {
 		logger.Error("cmd.Start() running command failed", zap.String("error:", err.Error()))
 	}
-	for {
+
+	go func() {
 		tmp := make([]byte, 1024)
-		_, err := stdout.Read(tmp)
-		fmt.Print(string(tmp))
-		if err != nil {
-			break
+		for {
+			n, err := stdout.Read(tmp)
+			if n > 0 {
+				fmt.Print(string(tmp[:n]))
+			}
+			if err != nil {
+				break
+			}
 		}
-	}
+	}()
+
+	go func() {
+		tmp := make([]byte, 1024)
+		for {
+			n, err := stderr.Read(tmp)
+			if n > 0 {
+				fmt.Print(string(tmp[:n]))
+			}
+			if err != nil {
+				break
+			}
+		}
+	}()
+
 	if err := cmd.Wait(); err != nil {
 		logger.Error("cmd.Wait() running command failed", zap.String("error:", err.Error()))
 	}
