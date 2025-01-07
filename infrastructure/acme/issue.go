@@ -44,7 +44,7 @@ func Remove(name string) error {
 	folder := filepath.Join("./.acme.sh", name)
 	filePaths := []string{folder}
 	for _, filePath := range filePaths {
-		err := os.Remove(filePath)
+		err := os.RemoveAll(filePath)
 		if err != nil {
 			return err
 		}
