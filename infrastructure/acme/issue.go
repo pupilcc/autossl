@@ -20,9 +20,9 @@ func Issue(name string) error {
 
 	var cmd *exec.Cmd
 	if len(parts) == 2 {
-		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "-d", "www."+name, "--challenge-alias", alias, "--keylength", "2048")
+		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "-d", "www."+name, "--challenge-alias", alias, "--keylength", "ec-256")
 	} else {
-		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "--challenge-alias", alias, "--keylength", "2048")
+		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "--challenge-alias", alias, "--keylength", "ec-256")
 	}
 
 	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
@@ -35,13 +35,13 @@ func Issue(name string) error {
 }
 
 func Install(name string, id string) error {
-	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--install-cert", "-d", name, "--key-file", filepath.Join(CertPath, id+".key"), "--fullchain-file", filepath.Join(CertPath, id+".crt"))
+	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--install-cert", "--ecc", "-d", name, "--key-file", filepath.Join(CertPath, id+".key"), "--fullchain-file", filepath.Join(CertPath, id+".crt"))
 	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
 	return execIssue(cmd)
 }
 
 func Remove(name string) error {
-	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--remove", "--domain", name)
+	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--remove", "--ecc", "--domain", name)
 	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
 	err := execIssue(cmd)
 	if err != nil {
