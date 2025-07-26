@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"go.uber.org/zap"
@@ -65,6 +66,11 @@ func Cron() error {
 	return execIssue(cmd)
 }
 
+// isCronOperation checks if the command is a cron operation
+func isCronOperation(cmd *exec.Cmd) bool {
+	return slices.Contains(cmd.Args, "--cron")
+}
+
 func execIssue(cmd *exec.Cmd) error {
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -105,6 +111,14 @@ func execIssue(cmd *exec.Cmd) error {
 	}()
 
 	if err := cmd.Wait(); err != nil {
+		// Check if this is a cron operation and exit status is 1
+		// acme.sh returns exit status 1 when no certificates need renewal during cron
+		if isCronOperation(cmd) {
+			if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() == 1 {
+				logger.Info("acme cron completed - no certificates needed renewal")
+				return nil
+			}
+		}
 		logger.Error("cmd.Wait() running command failed", zap.String("error:", err.Error()))
 	}
 	return err
