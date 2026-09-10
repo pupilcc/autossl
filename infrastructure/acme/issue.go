@@ -1,7 +1,6 @@
 package acme
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -49,7 +48,7 @@ func Remove(name string) error {
 		return err
 	}
 
-	folder := filepath.Join("./.acme.sh", name)
+	folder := filepath.Join(usr.HomeDir, ".acme.sh", name+"_ecc")
 	filePaths := []string{folder}
 	for _, filePath := range filePaths {
 		err := os.RemoveAll(filePath)
@@ -72,45 +71,10 @@ func isCronOperation(cmd *exec.Cmd) bool {
 }
 
 func execIssue(cmd *exec.Cmd) error {
-	stdout, err := cmd.StdoutPipe()
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stdout
+	err := cmd.Run()
 	if err != nil {
-		logger.Error("cmd.StdoutPipe() running command failed", zap.String("error:", err.Error()))
-	}
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		logger.Error("cmd.StderrPipe() running command failed", zap.String("error:", err.Error()))
-	}
-	if err = cmd.Start(); err != nil {
-		logger.Error("cmd.Start() running command failed", zap.String("error:", err.Error()))
-	}
-
-	go func() {
-		tmp := make([]byte, 1024)
-		for {
-			n, err := stdout.Read(tmp)
-			if n > 0 {
-				fmt.Print(string(tmp[:n]))
-			}
-			if err != nil {
-				break
-			}
-		}
-	}()
-
-	go func() {
-		tmp := make([]byte, 1024)
-		for {
-			n, err := stderr.Read(tmp)
-			if n > 0 {
-				fmt.Print(string(tmp[:n]))
-			}
-			if err != nil {
-				break
-			}
-		}
-	}()
-
-	if err := cmd.Wait(); err != nil {
 		// Check if this is a cron operation and exit status is 1
 		// acme.sh returns exit status 1 when no certificates need renewal during cron
 		if isCronOperation(cmd) {
@@ -119,7 +83,7 @@ func execIssue(cmd *exec.Cmd) error {
 				return nil
 			}
 		}
-		logger.Error("cmd.Wait() running command failed", zap.String("error:", err.Error()))
+		logger.Error("cmd.Run() running command failed", zap.String("error:", err.Error()))
 	}
 	return err
 }
