@@ -15,15 +15,11 @@ var CertPath = "./data/cert"
 func Issue(name string) error {
 	dns := os.Getenv("ACME_DNS")
 	alias := os.Getenv("ACME_ALIAS")
-
-	parts := strings.Split(name, ".")
-
-	var cmd *exec.Cmd
-	if len(parts) == 2 {
-		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "-d", "www."+name, "--challenge-alias", alias, "--keylength", "ec-256")
-	} else {
-		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "--challenge-alias", alias, "--keylength", "ec-256")
+	if strings.EqualFold(os.Getenv("ACME_ALIAS_PER_DOMAIN"), "true") {
+		alias = perDomainAlias(name, alias)
 	}
+
+	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), issueArgs(name, dns, alias)...)
 	if strings.EqualFold(os.Getenv("ACME_DEBUG"), "true") {
 		cmd.Args = append(cmd.Args, "--debug", "1")
 	}
@@ -35,6 +31,16 @@ func Issue(name string) error {
 		return err
 	}
 	return nil
+}
+
+func issueArgs(name string, dns string, alias string) []string {
+	return []string{"--issue", "--dns", dns, "-d", name, "-d", "*." + name, "--challenge-alias", alias, "--challenge-alias", alias, "--keylength", "ec-256"}
+}
+
+func perDomainAlias(name string, base string) string {
+	domain := strings.TrimSuffix(strings.ToLower(name), ".")
+	base = strings.TrimSuffix(strings.ToLower(base), ".")
+	return strings.TrimPrefix(domain, "*.") + "." + base
 }
 
 func Install(name string, id string) error {
@@ -74,9 +80,17 @@ func isCronOperation(cmd *exec.Cmd) bool {
 }
 
 func execIssue(cmd *exec.Cmd) error {
+	header, err := os.CreateTemp("", "autossl-acme-header-*")
+	if err != nil {
+		return err
+	}
+	_ = header.Close()
+	defer os.Remove(header.Name())
+
+	cmd.Env = append(cmd.Environ(), "HTTP_HEADER="+header.Name())
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
 		// Check if this is a cron operation and exit status is 1
 		// acme.sh returns exit status 1 when no certificates need renewal during cron

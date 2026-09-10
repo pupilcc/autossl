@@ -39,6 +39,7 @@ services:
       - ACME_EMAIL=example@gmail.com
       - ACME_DNS=dns_cf
       - ACME_ALIAS=alias.com
+      - ACME_ALIAS_PER_DOMAIN=true
       - ACME_DEBUG=false
       - CF_Zone_ID=xxxxxxxx
       - CF_Token=xxxxxx
@@ -62,9 +63,18 @@ docker-compose up -d
 - `ACME_EMAIL`: The email address for ACME registration.
 - `ACME_DNS`: The DNS provider for ACME (e.g., dns_cf for Cloudflare).
 - `ACME_ALIAS`: The DNS alias mode for ACME.
+- `ACME_ALIAS_PER_DOMAIN`: Appends the requested domain to `ACME_ALIAS` when set to `true`, isolating concurrent DNS challenges by domain.
 - `ACME_DEBUG`: Enables acme.sh debug level 1 logging when set to `true`.
 - `CF_Zone_ID`: The Cloudflare Zone ID.
 - `CF_Token`: The Cloudflare API token.
+
+When `ACME_ALIAS_PER_DOMAIN=true`, `*.example.com` with `ACME_ALIAS=alias.com` requires this DNS record:
+
+```dns
+_acme-challenge.example.com. CNAME _acme-challenge.example.com.alias.com.
+```
+
+Submit the base domain (`example.com`) to the generate API. AutoSSL issues one certificate for both `example.com` and `*.example.com`; the wildcard already covers `www.example.com`.
 
 ### Certificate Download Script
 

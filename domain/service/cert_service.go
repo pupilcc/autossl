@@ -12,9 +12,15 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
+	"sync"
 )
 
+// ponytail: process-local locks only; use a distributed lock for multiple replicas.
+var createCertLocks sync.Map
+
 func ExistCert(domain string) bool {
+	domain = baseDomain(domain)
 	repo := repository.GetCertRepo()
 
 	byDomain, err := repo.FindByDomain(domain)
@@ -25,6 +31,16 @@ func ExistCert(domain string) bool {
 }
 
 func CreateCert(domain string, code string) error {
+	domain = baseDomain(domain)
+	lock, _ := createCertLocks.LoadOrStore(domain, &sync.Mutex{})
+	mutex := lock.(*sync.Mutex)
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	if ExistCert(domain) {
+		return exception.CertificateExistsErr(domain)
+	}
+
 	err := os.MkdirAll(acme.CertPath, 0755)
 	if err != nil {
 		return err
@@ -51,6 +67,11 @@ func CreateCert(domain string, code string) error {
 	}
 
 	return nil
+}
+
+func baseDomain(domain string) string {
+	domain = strings.TrimSuffix(strings.ToLower(strings.TrimSpace(domain)), ".")
+	return strings.TrimPrefix(domain, "*.")
 }
 
 func ImportCert(domainName string, certFile *multipart.FileHeader, keyFile *multipart.FileHeader) error {
