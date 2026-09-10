@@ -20,9 +20,9 @@ func Issue(name string) error {
 
 	var cmd *exec.Cmd
 	if len(parts) == 2 {
-		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "-d", "www."+name, "--challenge-alias", alias, "--keylength", "ec-256")
+		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "-d", "www."+name, "--challenge-alias", alias, "--keylength", "ec-256", "--debug", "1")
 	} else {
-		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "--challenge-alias", alias, "--keylength", "ec-256")
+		cmd = exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--issue", "--dns", dns, "-d", name, "--challenge-alias", alias, "--keylength", "ec-256", "--debug", "1")
 	}
 
 	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
