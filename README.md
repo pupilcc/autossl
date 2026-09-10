@@ -76,6 +76,14 @@ _acme-challenge.example.com. CNAME _acme-challenge.example.com.alias.com.
 
 Submit the base domain (`example.com`) to the generate API. AutoSSL issues one certificate for both `example.com` and `*.example.com`; the wildcard already covers `www.example.com`.
 
+#### Cloudflare Universal SSL conflict
+
+When the certificate domain uses Cloudflare DNS, Universal SSL can automatically serve its own `_acme-challenge` TXT records instead of the configured CNAME alias. These records may not appear in the DNS dashboard. As a result, acme.sh can report `All checks succeeded` when checking the alias, while Let's Encrypt fails with `Incorrect TXT record` when querying the original domain.
+
+To resolve this conflict, select the certificate domain's zone in Cloudflare (for example, `example.com`, rather than the alias zone `alias.com`), go to **SSL/TLS → Edge Certificates → Universal SSL**, and disable Universal SSL. Keep the challenge CNAME configured, allow cached DNS responses to expire, then retry issuance.
+
+Disabling Universal SSL affects HTTPS for Cloudflare-proxied sites that rely on its edge certificates. Ensure those sites have another valid edge certificate before disabling it. See [Cloudflare's explanation of automatic ACME TXT records](https://developers.cloudflare.com/dns/manage-dns-records/troubleshooting/unexpected-dns-records/#acme_challenge-txt-records).
+
 ### Certificate Download Script
 
 For detailed instructions on how to download the certificates, please refer to the [certificate download script](https://github.com/tmplink/KnowledgeBase/blob/main/vxlink/vxssl.md).
