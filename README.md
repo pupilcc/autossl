@@ -39,6 +39,7 @@ services:
       - ACME_EMAIL=example@gmail.com
       - ACME_DNS=dns_cf
       - ACME_ALIAS=alias.com
+      - ACME_DEBUG=false
       - CF_Zone_ID=xxxxxxxx
       - CF_Token=xxxxxx
 
@@ -61,6 +62,7 @@ docker-compose up -d
 - `ACME_EMAIL`: The email address for ACME registration.
 - `ACME_DNS`: The DNS provider for ACME (e.g., dns_cf for Cloudflare).
 - `ACME_ALIAS`: The DNS alias mode for ACME.
+- `ACME_DEBUG`: Enables acme.sh debug level 1 logging when set to `true`.
 - `CF_Zone_ID`: The Cloudflare Zone ID.
 - `CF_Token`: The Cloudflare API token.
 
