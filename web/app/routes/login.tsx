@@ -11,6 +11,7 @@ import {
   type MetaFunction,
 } from "react-router";
 
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,14 +66,17 @@ export default function LoginPage() {
     <main className="relative grid min-h-screen place-items-center overflow-hidden px-4 py-10">
       <div className="absolute inset-x-0 top-0 h-1 bg-primary" />
       <section className="w-full max-w-sm rounded-lg bg-card p-7 shadow-[0_18px_55px_rgba(16,35,25,0.11)] sm:p-8">
-        <div className="mb-8 flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-md bg-primary text-primary-foreground">
-            <ShieldCheck aria-hidden="true" className="size-6" />
-          </span>
-          <div>
-            <h1 className="text-xl font-semibold">AutoSSL</h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">{text.subtitle}</p>
+        <div className="mb-8 flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="grid size-11 place-items-center rounded-md bg-primary text-primary-foreground">
+              <ShieldCheck aria-hidden="true" className="size-6" />
+            </span>
+            <div>
+              <h1 className="text-xl font-semibold">AutoSSL</h1>
+              <p className="mt-0.5 text-sm text-muted-foreground">{text.subtitle}</p>
+            </div>
           </div>
+          <LanguageSwitcher locale={locale} />
         </div>
 
         <Form method="post" className="space-y-5">

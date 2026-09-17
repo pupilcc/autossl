@@ -20,6 +20,7 @@ import {
 } from "react-router";
 import { toast } from "sonner";
 
+import { LanguageSwitcher } from "@/components/language-switcher";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -333,6 +334,7 @@ export default function CertificatesPage() {
               <span className="size-2 bg-primary" aria-hidden="true" />
               {text.apiOnline}
             </span>
+            <LanguageSwitcher locale={locale} inverted />
             <Form method="post">
               <input type="hidden" name="intent" value="logout" />
               <Button

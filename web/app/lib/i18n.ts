@@ -136,11 +136,38 @@ export const messages = {
 
 export type Locale = keyof typeof messages;
 
+const LOCALE_COOKIE = "autossl_locale";
+
+function parseLocale(value: string | null | undefined): Locale | null {
+  return value === "en" || value === "zh-CN" ? value : null;
+}
+
+export function getRequestedLocale(request: Request) {
+  return parseLocale(new URL(request.url).searchParams.get("lang"));
+}
+
 export function getLocale(request: Request): Locale {
+  const requestedLocale = getRequestedLocale(request);
+  if (requestedLocale) return requestedLocale;
+
+  const cookieLocale = request.headers
+    .get("cookie")
+    ?.split(";")
+    .map((part) => part.trim().split("=", 2))
+    .find(([name]) => name === LOCALE_COOKIE)?.[1];
+  const savedLocale = parseLocale(cookieLocale);
+  if (savedLocale) return savedLocale;
+
   const language = request.headers
     .get("accept-language")
     ?.split(",", 1)[0]
     .trim()
     .toLowerCase();
   return language?.startsWith("zh") ? "zh-CN" : "en";
+}
+
+export function createLocaleCookie(request: Request, locale: Locale) {
+  const protocol = request.headers.get("X-Forwarded-Proto") ?? new URL(request.url).protocol;
+  const secure = protocol.replace(":", "") === "https" ? "; Secure" : "";
+  return `${LOCALE_COOKIE}=${locale}; Path=/; SameSite=Lax; Max-Age=31536000${secure}`;
 }

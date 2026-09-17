@@ -1,4 +1,5 @@
 import {
+  data,
   isRouteErrorResponse,
   Links,
   Meta,
@@ -6,12 +7,18 @@ import {
   Scripts,
   ScrollRestoration,
   useRouteLoaderData,
+  type HeadersArgs,
   type LinksFunction,
   type LoaderFunctionArgs,
 } from "react-router";
 import { Toaster } from "sonner";
 
-import { getLocale, messages } from "@/lib/i18n";
+import {
+  createLocaleCookie,
+  getLocale,
+  getRequestedLocale,
+  messages,
+} from "@/lib/i18n";
 
 import stylesheet from "./app.css?url";
 
@@ -20,11 +27,17 @@ export const links: LinksFunction = () => [
 ];
 
 export function loader({ request }: LoaderFunctionArgs) {
-  return { locale: getLocale(request) };
+  const locale = getLocale(request);
+  const selectedLocale = getRequestedLocale(request);
+  const headers = new Headers({ Vary: "Accept-Language, Cookie" });
+  if (selectedLocale) {
+    headers.set("Set-Cookie", createLocaleCookie(request, selectedLocale));
+  }
+  return data({ locale }, { headers });
 }
 
-export function headers() {
-  return { Vary: "Accept-Language" };
+export function headers({ loaderHeaders }: HeadersArgs) {
+  return loaderHeaders;
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
