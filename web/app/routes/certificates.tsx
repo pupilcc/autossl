@@ -40,33 +40,40 @@ import {
   deleteCertificate,
   listCertificates,
 } from "@/lib/backend.server";
+import { getLocale, messages, type Locale } from "@/lib/i18n";
 import {
   assertSameOrigin,
   destroySessionCookie,
   requireSession,
 } from "@/lib/session.server";
 
-export const meta: MetaFunction = () => [{ title: "证书控制台 · AutoSSL" }];
+export const meta: MetaFunction<typeof loader> = ({ data }) => [
+  { title: messages[data?.locale ?? "en"].certificates.metaTitle },
+];
 
 export type ActionResult = { ok: boolean; message: string };
 type ActionFetcher = ReturnType<typeof useFetcher<ActionResult>>;
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const locale = getLocale(request);
+  const text = messages[locale].certificates;
   const session = requireSession(request);
   try {
-    return { certificates: await listCertificates(session.token) };
+    return { certificates: await listCertificates(session.token), locale };
   } catch (error) {
     if (error instanceof BackendError && error.status === 401) {
       return redirect("/login", {
         headers: { "Set-Cookie": destroySessionCookie(request) },
       });
     }
-    throw new Response("证书列表加载失败。", { status: 502 });
+    throw new Response(text.loadFailed, { status: 502 });
   }
 }
 
 export async function action({ request }: ActionFunctionArgs): Promise<ActionResult | Response> {
   assertSameOrigin(request);
+  const locale = getLocale(request);
+  const text = messages[locale].certificates;
   const session = requireSession(request);
   const formData = await request.formData();
   const intent = String(formData.get("intent") ?? "");
@@ -84,22 +91,22 @@ export async function action({ request }: ActionFunctionArgs): Promise<ActionRes
         .toLowerCase()
         .replace(/\.$/, "");
       const validDomain = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(domain);
-      if (!validDomain) return { ok: false, message: "请输入有效的基础域名，例如 example.com。" };
+      if (!validDomain) return { ok: false, message: text.invalidDomain };
 
       await createCertificate(session.token, domain);
-      return { ok: true, message: `${domain} 的证书已创建。` };
+      return { ok: true, message: text.created(domain) };
     }
 
     if (intent === "delete") {
       const code = String(formData.get("code") ?? "");
       if (!/^[A-Za-z0-9_-]+$/.test(code)) {
-        return { ok: false, message: "证书标识无效。" };
+        return { ok: false, message: text.invalidCertificate };
       }
       await deleteCertificate(session.token, code);
-      return { ok: true, message: "证书已删除。" };
+      return { ok: true, message: text.deleted };
     }
 
-    return { ok: false, message: "未知操作。" };
+    return { ok: false, message: text.unknownAction };
   } catch (error) {
     if (error instanceof BackendError && error.status === 401) {
       return redirect("/login", {
@@ -108,7 +115,10 @@ export async function action({ request }: ActionFunctionArgs): Promise<ActionRes
     }
     return {
       ok: false,
-      message: error instanceof BackendError ? error.message : "操作失败，请稍后重试。",
+      message:
+        error instanceof BackendError && locale === "en"
+          ? error.message
+          : text.operationFailed,
     };
   }
 }
@@ -128,7 +138,8 @@ function useActionToast(fetcher: ActionFetcher, onSuccess?: () => void) {
   }, [fetcher.data, fetcher.state, onSuccess]);
 }
 
-function AddCertificateForm() {
+function AddCertificateForm({ locale }: { locale: Locale }) {
+  const text = messages[locale].certificates;
   const fetcher = useFetcher<ActionResult>();
   const formRef = useRef<HTMLFormElement>(null);
   useActionToast(fetcher, () => formRef.current?.reset());
@@ -138,11 +149,11 @@ function AddCertificateForm() {
     <section className="border-2 border-foreground bg-card" aria-labelledby="issue-title">
       <div className="flex min-h-11 items-center justify-between gap-4 bg-foreground px-4 py-2 text-card">
         <h2 id="issue-title" className="font-mono text-xs font-semibold uppercase">
-          01 / 签发证书
+          {text.issueTitle}
         </h2>
         <span className="flex items-center gap-2 text-xs text-card/70">
           <ShieldCheck aria-hidden="true" className="size-4 text-primary" />
-          DNS-01 验证
+          {text.dnsVerification}
         </span>
       </div>
       <fetcher.Form
@@ -151,7 +162,7 @@ function AddCertificateForm() {
         className="grid gap-x-4 gap-y-2 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_10rem]"
       >
         <input type="hidden" name="intent" value="create" />
-        <Label htmlFor="domain" className="lg:col-start-1 lg:row-start-1">基础域名</Label>
+        <Label htmlFor="domain" className="lg:col-start-1 lg:row-start-1">{text.baseDomain}</Label>
         <Input
           id="domain"
           name="domain"
@@ -160,13 +171,13 @@ function AddCertificateForm() {
           placeholder="example.com"
           className="h-12 rounded-none border-foreground shadow-none lg:col-start-1 lg:row-start-2"
           pattern="(?=.{1,253}$)([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?"
-          title="请输入基础域名，例如 example.com"
+          title={text.domainValidation}
           aria-describedby="domain-hint"
           required
           disabled={submitting}
         />
         <p id="domain-hint" className="text-xs leading-5 text-muted-foreground lg:col-start-1 lg:row-start-3">
-          无需填写协议或 * 前缀。
+          {text.domainHint}
         </p>
         <Button
           type="submit"
@@ -174,17 +185,17 @@ function AddCertificateForm() {
           disabled={submitting}
         >
           {submitting ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Check aria-hidden="true" />}
-          {submitting ? "正在签发" : "签发证书"}
+          {submitting ? text.issuing : text.issue}
         </Button>
       </fetcher.Form>
 
       <dl className="grid border-t bg-secondary/45 text-xs sm:grid-cols-2 sm:divide-x">
         <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-5">
-          <dt className="text-muted-foreground">覆盖范围</dt>
-          <dd className="font-medium">根域名 + 通配符</dd>
+          <dt className="text-muted-foreground">{text.coverage}</dt>
+          <dd className="font-medium">{text.rootAndWildcard}</dd>
         </div>
         <div className="flex items-center justify-between gap-4 border-t px-4 py-3 sm:border-t-0 sm:px-5">
-          <dt className="text-muted-foreground">密钥算法</dt>
+          <dt className="text-muted-foreground">{text.keyAlgorithm}</dt>
           <dd className="font-medium">ECDSA P-256</dd>
         </div>
       </dl>
@@ -210,18 +221,21 @@ async function copyText(value: string) {
 function CopyCertificate({
   label,
   value,
+  locale,
   sensitive = false,
 }: {
   label: string;
   value: string;
+  locale: Locale;
   sensitive?: boolean;
 }) {
+  const text = messages[locale].certificates;
   const copy = async () => {
     try {
       await copyText(value);
-      toast.success(`${label}已复制。`);
+      toast.success(text.copySuccess(label));
     } catch {
-      toast.error("复制失败，请允许浏览器访问剪贴板后重试。");
+      toast.error(text.copyFailed);
     }
   };
 
@@ -236,10 +250,10 @@ function CopyCertificate({
           ? "border-accent bg-accent text-accent-foreground hover:bg-accent/80"
           : undefined
       }
-      aria-label={value ? `复制${label}` : `${label}未配置`}
+      aria-label={value ? text.copy(label) : text.notConfigured(label)}
     >
       <Clipboard aria-hidden="true" />
-      {value ? `复制${label}` : `${label}未配置`}
+      {value ? text.copy(label) : text.notConfigured(label)}
     </Button>
   );
 }
@@ -248,11 +262,14 @@ function DeleteCertificate({
   code,
   domain,
   fetcher,
+  locale,
 }: {
   code: string;
   domain: string;
   fetcher: ActionFetcher;
+  locale: Locale;
 }) {
+  const text = messages[locale].certificates;
   const submitting = fetcher.state !== "idle";
 
   return (
@@ -260,18 +277,18 @@ function DeleteCertificate({
       <AlertDialogTrigger asChild>
         <Button type="button" variant="ghost" size="sm" className="text-destructive hover:bg-destructive/8 hover:text-destructive">
           <Trash2 aria-hidden="true" />
-          删除
+          {text.delete}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>删除 {domain}？</AlertDialogTitle>
+          <AlertDialogTitle>{text.deleteTitle(domain)}</AlertDialogTitle>
           <AlertDialogDescription>
-            证书记录及对应文件将被删除，此操作无法撤销。
+            {text.deleteDescription}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={submitting}>取消</AlertDialogCancel>
+          <AlertDialogCancel disabled={submitting}>{text.cancel}</AlertDialogCancel>
           <AlertDialogAction
             type="button"
             disabled={submitting}
@@ -283,7 +300,7 @@ function DeleteCertificate({
             }
           >
             {submitting ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Trash2 aria-hidden="true" />}
-            确认删除
+            {text.confirmDelete}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -292,7 +309,8 @@ function DeleteCertificate({
 }
 
 export default function CertificatesPage() {
-  const { certificates } = useLoaderData<typeof loader>();
+  const { certificates, locale } = useLoaderData<typeof loader>();
+  const text = messages[locale].certificates;
   const deleteFetcher = useFetcher<ActionResult>();
   const { revalidate } = useRevalidator();
   useActionToast(deleteFetcher, revalidate);
@@ -307,13 +325,13 @@ export default function CertificatesPage() {
             </span>
             <div>
               <p className="font-semibold leading-5">AutoSSL</p>
-              <p className="hidden font-mono text-[11px] text-card/55 sm:block">CERTIFICATE CONTROL</p>
+              <p className="hidden font-mono text-[11px] text-card/55 sm:block">{text.brandLine}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <span className="hidden items-center gap-2 font-mono text-xs text-card/70 sm:flex">
               <span className="size-2 bg-primary" aria-hidden="true" />
-              API ONLINE
+              {text.apiOnline}
             </span>
             <Form method="post">
               <input type="hidden" name="intent" value="logout" />
@@ -324,8 +342,8 @@ export default function CertificatesPage() {
                 className="text-card hover:bg-card/10 hover:text-card"
               >
                 <LogOut aria-hidden="true" />
-                <span className="hidden sm:inline">退出登录</span>
-                <span className="sm:hidden">退出</span>
+                <span className="hidden sm:inline">{text.logout}</span>
+                <span className="sm:hidden">{text.logoutShort}</span>
               </Button>
             </Form>
           </div>
@@ -336,30 +354,30 @@ export default function CertificatesPage() {
         <section className="border-b-2 border-foreground bg-card">
           <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10 md:flex-row md:items-end md:justify-between lg:px-8">
             <div>
-              <p className="font-mono text-xs font-semibold text-primary">/ INFRASTRUCTURE</p>
-              <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">证书资源</h1>
+              <p className="font-mono text-xs font-semibold text-primary">{text.infrastructure}</p>
+              <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">{text.resources}</h1>
               <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-                签发、续期并分发根域名与通配符证书。
+                {text.description}
               </p>
             </div>
             <div className="flex items-end gap-3 border-l-4 border-primary pl-4 md:text-right">
               <strong className="text-4xl font-semibold tabular-nums sm:text-5xl">{certificates.length}</strong>
               <span className="pb-1 text-xs leading-5 text-muted-foreground">
-                个域名<br />正在托管
+                {text.domainCount(certificates.length)}<br />{text.hosted}
               </span>
             </div>
           </div>
         </section>
 
         <div className="mx-auto max-w-7xl space-y-10 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-          <AddCertificateForm />
+          <AddCertificateForm locale={locale} />
 
           <section aria-labelledby="certificate-list-title">
             <div className="mb-4 flex items-center justify-between gap-4 border-b-2 border-foreground pb-3">
               <h2 id="certificate-list-title" className="font-mono text-xs font-semibold uppercase">
-                02 / 证书资源
+                {text.listTitle}
               </h2>
-              <span className="font-mono text-xs text-muted-foreground">TOTAL {certificates.length}</span>
+              <span className="font-mono text-xs text-muted-foreground">{text.total} {certificates.length}</span>
             </div>
 
             {certificates.length === 0 ? (
@@ -368,7 +386,7 @@ export default function CertificatesPage() {
                   <span className="mx-auto grid size-12 place-items-center border-2 border-foreground text-primary">
                     <KeyRound aria-hidden="true" className="size-6" />
                   </span>
-                  <h3 className="mt-4 font-semibold">暂无证书资源</h3>
+                  <h3 className="mt-4 font-semibold">{text.empty}</h3>
                 </div>
               </div>
             ) : (
@@ -391,22 +409,23 @@ export default function CertificatesPage() {
 
                     <dl className="grid grid-cols-2 gap-3 border-y py-3 text-xs sm:max-w-sm lg:block lg:border-y-0 lg:border-l lg:py-0 lg:pl-5">
                       <div>
-                        <dt className="text-muted-foreground">验证</dt>
+                        <dt className="text-muted-foreground">{text.validation}</dt>
                         <dd className="mt-1 font-medium">DNS-01</dd>
                       </div>
                       <div className="lg:mt-3">
-                        <dt className="text-muted-foreground">算法</dt>
+                        <dt className="text-muted-foreground">{text.algorithm}</dt>
                         <dd className="mt-1 font-medium">ECDSA P-256</dd>
                       </div>
                     </dl>
 
                     <div className="flex flex-wrap gap-2 lg:justify-end">
-                      <CopyCertificate label="证书地址" value={certificate.cert} />
-                      <CopyCertificate label="私钥地址" value={certificate.key} sensitive />
+                      <CopyCertificate label={text.certificateUrl} value={certificate.cert} locale={locale} />
+                      <CopyCertificate label={text.privateKeyUrl} value={certificate.key} locale={locale} sensitive />
                       <DeleteCertificate
                         code={certificate.code}
                         domain={certificate.domain}
                         fetcher={deleteFetcher}
+                        locale={locale}
                       />
                     </div>
                   </article>

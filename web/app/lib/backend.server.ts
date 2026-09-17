@@ -31,7 +31,7 @@ async function backendRequest<T>(
 
   const response = await fetch(`${apiBaseUrl}${path}`, { ...init, headers });
   if (!response.ok) {
-    let message = `后端请求失败（${response.status}）`;
+    let message = `Backend request failed (${response.status})`;
     try {
       const body = (await response.json()) as { message?: string };
       if (body.message) message = body.message;

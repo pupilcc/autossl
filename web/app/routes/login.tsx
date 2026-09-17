@@ -4,6 +4,7 @@ import {
   Form,
   redirect,
   useActionData,
+  useLoaderData,
   useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -14,26 +15,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BackendError, login } from "@/lib/backend.server";
+import { getLocale, messages } from "@/lib/i18n";
 import {
   assertSameOrigin,
   createSessionCookie,
   getSession,
 } from "@/lib/session.server";
 
-export const meta: MetaFunction = () => [{ title: "登录 · AutoSSL" }];
+export const meta: MetaFunction<typeof loader> = ({ data }) => [
+  { title: messages[data?.locale ?? "en"].login.metaTitle },
+];
 
 export function loader({ request }: LoaderFunctionArgs) {
   if (getSession(request)) return redirect("/");
-  return null;
+  return { locale: getLocale(request) };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
   assertSameOrigin(request);
+  const text = messages[getLocale(request)].login;
   const formData = await request.formData();
   const username = String(formData.get("username") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
-  if (!username || !password) return { error: "请输入用户名和密码。" };
+  if (!username || !password) return { error: text.missingCredentials };
 
   try {
     const result = await login(username, password);
@@ -42,13 +47,15 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   } catch (error) {
     if (error instanceof BackendError && error.status === 401) {
-      return { error: "用户名或密码不正确。" };
+      return { error: text.invalidCredentials };
     }
-    return { error: "暂时无法连接服务，请稍后重试。" };
+    return { error: text.serviceUnavailable };
   }
 }
 
 export default function LoginPage() {
+  const { locale } = useLoaderData<typeof loader>();
+  const text = messages[locale].login;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const [showPassword, setShowPassword] = useState(false);
@@ -64,13 +71,13 @@ export default function LoginPage() {
           </span>
           <div>
             <h1 className="text-xl font-semibold">AutoSSL</h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">证书控制台</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">{text.subtitle}</p>
           </div>
         </div>
 
         <Form method="post" className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="username">用户名</Label>
+            <Label htmlFor="username">{text.username}</Label>
             <Input
               id="username"
               name="username"
@@ -82,7 +89,7 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">密码</Label>
+            <Label htmlFor="password">{text.password}</Label>
             <div className="relative">
               <Input
                 id="password"
@@ -97,7 +104,7 @@ export default function LoginPage() {
                 type="button"
                 className="absolute right-0 top-0 grid size-11 place-items-center rounded-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() => setShowPassword((value) => !value)}
-                aria-label={showPassword ? "隐藏密码" : "显示密码"}
+                aria-label={showPassword ? text.hidePassword : text.showPassword}
               >
                 {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
               </button>
@@ -113,7 +120,7 @@ export default function LoginPage() {
 
           <Button type="submit" className="w-full" disabled={submitting}>
             {submitting ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : null}
-            {submitting ? "正在登录" : "登录"}
+            {submitting ? text.signingIn : text.signIn}
           </Button>
         </Form>
       </section>
