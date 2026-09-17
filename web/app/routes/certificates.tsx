@@ -13,6 +13,7 @@ import {
   redirect,
   useFetcher,
   useLoaderData,
+  useRevalidator,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   type MetaFunction,
@@ -274,7 +275,12 @@ function DeleteCertificate({
           <AlertDialogAction
             type="button"
             disabled={submitting}
-            onClick={() => fetcher.submit({ intent: "delete", code }, { method: "post" })}
+            onClick={() =>
+              fetcher.submit(
+                { intent: "delete", code },
+                { method: "post", defaultShouldRevalidate: false },
+              )
+            }
           >
             {submitting ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Trash2 aria-hidden="true" />}
             确认删除
@@ -288,7 +294,8 @@ function DeleteCertificate({
 export default function CertificatesPage() {
   const { certificates } = useLoaderData<typeof loader>();
   const deleteFetcher = useFetcher<ActionResult>();
-  useActionToast(deleteFetcher);
+  const { revalidate } = useRevalidator();
+  useActionToast(deleteFetcher, revalidate);
 
   return (
     <div className="min-h-screen">
