@@ -48,6 +48,7 @@ import {
 export const meta: MetaFunction = () => [{ title: "证书控制台 · AutoSSL" }];
 
 export type ActionResult = { ok: boolean; message: string };
+type ActionFetcher = ReturnType<typeof useFetcher<ActionResult>>;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = requireSession(request);
@@ -111,7 +112,7 @@ export async function action({ request }: ActionFunctionArgs): Promise<ActionRes
   }
 }
 
-function useActionToast(fetcher: ReturnType<typeof useFetcher<ActionResult>>, onSuccess?: () => void) {
+function useActionToast(fetcher: ActionFetcher, onSuccess?: () => void) {
   const handled = useRef<ActionResult | undefined>(undefined);
 
   useEffect(() => {
@@ -242,9 +243,15 @@ function CopyCertificate({
   );
 }
 
-function DeleteCertificate({ code, domain }: { code: string; domain: string }) {
-  const fetcher = useFetcher<ActionResult>();
-  useActionToast(fetcher);
+function DeleteCertificate({
+  code,
+  domain,
+  fetcher,
+}: {
+  code: string;
+  domain: string;
+  fetcher: ActionFetcher;
+}) {
   const submitting = fetcher.state !== "idle";
 
   return (
@@ -280,6 +287,8 @@ function DeleteCertificate({ code, domain }: { code: string; domain: string }) {
 
 export default function CertificatesPage() {
   const { certificates } = useLoaderData<typeof loader>();
+  const deleteFetcher = useFetcher<ActionResult>();
+  useActionToast(deleteFetcher);
 
   return (
     <div className="min-h-screen">
@@ -387,7 +396,11 @@ export default function CertificatesPage() {
                     <div className="flex flex-wrap gap-2 lg:justify-end">
                       <CopyCertificate label="证书地址" value={certificate.cert} />
                       <CopyCertificate label="私钥地址" value={certificate.key} sensitive />
-                      <DeleteCertificate code={certificate.code} domain={certificate.domain} />
+                      <DeleteCertificate
+                        code={certificate.code}
+                        domain={certificate.domain}
+                        fetcher={deleteFetcher}
+                      />
                     </div>
                   </article>
                 ))}
