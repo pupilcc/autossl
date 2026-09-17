@@ -7,7 +7,7 @@ import {
   ShieldCheck,
   Trash2,
 } from "lucide-react";
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   Form,
   redirect,
@@ -244,38 +244,35 @@ function DeleteCertificate({ code, domain }: { code: string; domain: string }) {
   const fetcher = useFetcher<ActionResult>();
   useActionToast(fetcher);
   const submitting = fetcher.state !== "idle";
-  const formId = `delete-${code}-${useId().replaceAll(":", "")}`;
 
   return (
-    <>
-      <fetcher.Form id={formId} method="post">
-        <input type="hidden" name="intent" value="delete" />
-        <input type="hidden" name="code" value={code} />
-      </fetcher.Form>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button type="button" variant="ghost" size="sm" className="text-destructive hover:bg-destructive/8 hover:text-destructive">
-            <Trash2 aria-hidden="true" />
-            删除
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>删除 {domain}？</AlertDialogTitle>
-            <AlertDialogDescription>
-              证书记录及对应文件将被删除，此操作无法撤销。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={submitting}>取消</AlertDialogCancel>
-            <AlertDialogAction form={formId} type="submit" disabled={submitting}>
-              {submitting ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Trash2 aria-hidden="true" />}
-              确认删除
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button type="button" variant="ghost" size="sm" className="text-destructive hover:bg-destructive/8 hover:text-destructive">
+          <Trash2 aria-hidden="true" />
+          删除
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>删除 {domain}？</AlertDialogTitle>
+          <AlertDialogDescription>
+            证书记录及对应文件将被删除，此操作无法撤销。
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={submitting}>取消</AlertDialogCancel>
+          <AlertDialogAction
+            type="button"
+            disabled={submitting}
+            onClick={() => fetcher.submit({ intent: "delete", code }, { method: "post" })}
+          >
+            {submitting ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Trash2 aria-hidden="true" />}
+            确认删除
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
