@@ -146,29 +146,31 @@ function AddCertificateForm() {
       <fetcher.Form
         ref={formRef}
         method="post"
-        className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_10rem] lg:items-end"
+        className="grid gap-x-4 gap-y-2 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_10rem]"
       >
         <input type="hidden" name="intent" value="create" />
-        <div className="space-y-2">
-          <Label htmlFor="domain">基础域名</Label>
-          <Input
-            id="domain"
-            name="domain"
-            inputMode="url"
-            autoComplete="off"
-            placeholder="example.com"
-            className="h-12 rounded-none border-foreground shadow-none"
-            pattern="(?=.{1,253}$)([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?"
-            title="请输入基础域名，例如 example.com"
-            aria-describedby="domain-hint"
-            required
-            disabled={submitting}
-          />
-          <p id="domain-hint" className="text-xs leading-5 text-muted-foreground">
-            无需填写协议或 * 前缀。
-          </p>
-        </div>
-        <Button type="submit" className="h-12 w-full rounded-none" disabled={submitting}>
+        <Label htmlFor="domain" className="lg:col-start-1 lg:row-start-1">基础域名</Label>
+        <Input
+          id="domain"
+          name="domain"
+          inputMode="url"
+          autoComplete="off"
+          placeholder="example.com"
+          className="h-12 rounded-none border-foreground shadow-none lg:col-start-1 lg:row-start-2"
+          pattern="(?=.{1,253}$)([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?"
+          title="请输入基础域名，例如 example.com"
+          aria-describedby="domain-hint"
+          required
+          disabled={submitting}
+        />
+        <p id="domain-hint" className="text-xs leading-5 text-muted-foreground lg:col-start-1 lg:row-start-3">
+          无需填写协议或 * 前缀。
+        </p>
+        <Button
+          type="submit"
+          className="mt-2 h-12 w-full rounded-none lg:col-start-2 lg:row-start-2 lg:mt-0"
+          disabled={submitting}
+        >
           {submitting ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Check aria-hidden="true" />}
           {submitting ? "正在签发" : "签发证书"}
         </Button>
