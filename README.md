@@ -8,6 +8,8 @@ Set up one domain, such as `alias.com`, on Cloudflare and give its API token to 
 
 The certificate is still issued to the target domain, not `alias.com`. AutoSSL requests one ECDSA P-256 certificate containing both the base domain and its wildcard, then provides stable certificate and private-key URLs for deployment scripts.
 
+![AutoSSL console](docs/images/console.png)
+
 ## Why AutoSSL
 
 | Direct DNS API issuance | AutoSSL |

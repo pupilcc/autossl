@@ -8,6 +8,8 @@
 
 证书仍然签发给目标域名，而不是 `alias.com`。AutoSSL 会为目标基础域名和通配符域名申请一张 ECDSA P-256 证书，再通过固定的证书与私钥 URL 提供给部署脚本。
 
+![AutoSSL console](docs/images/console.zh-CN.png)
+
 ## AutoSSL 解决什么问题
 
 | 直接使用目标域名的 DNS API | 使用 AutoSSL |
