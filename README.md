@@ -50,8 +50,6 @@ Assume `alias.com` is the validation domain hosted on Cloudflare and `example.co
 
 6. Let's Encrypt validates the TXT record and issues a certificate for `example.com` and `*.example.com`. AutoSSL installs the full chain and private key under stable download URLs.
 
-With `ACME_ALIAS_PER_DOMAIN=true`, every target gets a separate name under the same validation domain. For example, `example.org` uses `example.org.alias.com`. This keeps concurrent challenges isolated while every domain still shares one Cloudflare zone and API token.
-
 AutoSSL runs `acme.sh --cron` every day at 01:30 container time. Keep the CNAME records and persist `/root/.acme.sh` so renewals continue to use the same validation path and ACME account.
 
 ## Setup
@@ -121,10 +119,25 @@ Configure the HTTPS reverse proxy so `api.example.com` reaches the Go API on por
 | `ACME_EMAIL` | ACME account email. |
 | `ACME_DNS` | acme.sh DNS hook; use `dns_cf` for the Cloudflare validation zone. |
 | `ACME_ALIAS` | The single Cloudflare-managed validation domain. |
-| `ACME_ALIAS_PER_DOMAIN` | `true` creates `<target-domain>.<alias>` for isolated challenges. Recommended. |
+| `ACME_ALIAS_PER_DOMAIN` | Only `true` uses `<target-base-domain>.<ACME_ALIAS>`; every other value makes all domains share `ACME_ALIAS`. See below. |
 | `ACME_DEBUG` | `true` enables acme.sh debug level 1. |
 | `CF_Zone_ID` | Zone ID of the Cloudflare validation domain. |
 | `CF_Token` | API token allowed to manage DNS records in that zone. |
+
+### How `ACME_ALIAS_PER_DOMAIN` works
+
+This variable controls whether AutoSSL creates a separate validation alias for each target domain or sends every target directly to `ACME_ALIAS`. It is enabled only when its value is `true` (case-insensitive); an unset value, `false`, or any other value disables it.
+
+With `ACME_ALIAS=alias.com` and a certificate target of `example.com`:
+
+| Setting | Validation alias passed to acme.sh | CNAME target | Result |
+| --- | --- | --- | --- |
+| `ACME_ALIAS_PER_DOMAIN=true` | `example.com.alias.com` | `_acme-challenge.example.com.alias.com` | Each target base domain uses an isolated record. Recommended. |
+| Unset or not `true` | `alias.com` | `_acme-challenge.alias.com` | All target domains share one record, so concurrent validations can interfere. |
+
+When enabled, the alias is built as `<target-base-domain>.<ACME_ALIAS>`. AutoSSL removes a trailing dot and a leading `*.` from the input and converts it to lowercase; for example, `*.Example.COM.` becomes `example.com.alias.com`. The `example.com` and `*.example.com` names on the same certificate deliberately share this alias, while other certificate targets get their own aliases. They can therefore share one Cloudflare zone and API token without sharing challenge records.
+
+Each target domain's CNAME must match the selected mode. This variable affects the arguments generated when AutoSSL starts a new `acme.sh --issue`; `acme.sh --cron` uses its saved issuance configuration. When changing `ACME_ALIAS` or this variable, keep the old CNAME until the affected certificate has been reissued with the new configuration and its renewal path has been confirmed.
 
 ## Cloudflare Universal SSL conflict
 

@@ -50,8 +50,6 @@
 
 6. Let's Encrypt 验证 TXT 记录后，为 `example.com` 和 `*.example.com` 签发证书。AutoSSL 将完整证书链和私钥安装到固定的下载 URL。
 
-启用 `ACME_ALIAS_PER_DOMAIN=true` 后，每个目标域名会在同一验证域名下使用独立记录。例如，`example.org` 使用 `example.org.alias.com`。这样既能隔离并发验证，又能让所有域名共用同一个 Cloudflare DNS 区域和 API Token。
-
 AutoSSL 每天在容器时间 01:30 运行 `acme.sh --cron`。请保留所有 CNAME，并持久化 `/root/.acme.sh`，让续期继续使用相同的验证路径和 ACME 账户。
 
 ## 配置与部署
@@ -121,10 +119,25 @@ docker compose up -d
 | `ACME_EMAIL` | ACME 账户邮箱。 |
 | `ACME_DNS` | acme.sh DNS 钩子；Cloudflare 验证区域使用 `dns_cf`。 |
 | `ACME_ALIAS` | 由 Cloudflare 托管的统一验证域名。 |
-| `ACME_ALIAS_PER_DOMAIN` | `true` 表示为每个目标域名使用 `<target-domain>.<alias>`，建议启用。 |
+| `ACME_ALIAS_PER_DOMAIN` | 仅 `true` 为每个目标域名使用 `<目标基础域名>.<ACME_ALIAS>`；其他值使所有域名共用 `ACME_ALIAS`。详见下文。 |
 | `ACME_DEBUG` | `true` 表示启用 acme.sh 一级调试日志。 |
 | `CF_Zone_ID` | Cloudflare 验证域名所在区域的 Zone ID。 |
 | `CF_Token` | 有权管理该区域 DNS 记录的 API Token。 |
+
+### `ACME_ALIAS_PER_DOMAIN` 如何工作
+
+该变量决定 AutoSSL 是为每个目标域名生成独立验证别名，还是让所有目标域名直接共用 `ACME_ALIAS`。只有值为 `true`（不区分大小写）时才会启用；未设置、`false` 或其他值均表示关闭。
+
+假设 `ACME_ALIAS=alias.com`，签发目标为 `example.com`：
+
+| 设置 | 传给 acme.sh 的验证别名 | CNAME 目标 | 结果 |
+| --- | --- | --- | --- |
+| `ACME_ALIAS_PER_DOMAIN=true` | `example.com.alias.com` | `_acme-challenge.example.com.alias.com` | 每个目标基础域名使用独立记录，推荐。 |
+| 未设置或非 `true` | `alias.com` | `_acme-challenge.alias.com` | 所有目标域名共用同一记录，并发验证可能互相干扰。 |
+
+启用后，别名按 `<目标基础域名>.<ACME_ALIAS>` 生成。AutoSSL 会移除输入末尾的点和开头的 `*.`，并转为小写；例如 `*.Example.COM.` 会得到 `example.com.alias.com`。同一张证书中的 `example.com` 和 `*.example.com` 会共用这个别名，但其他目标域名使用各自的别名，因此可以安全地共享同一个 Cloudflare 区域和 API Token。
+
+每个目标域名的 CNAME 必须与当前模式匹配。该变量只在 AutoSSL 发起新的 `acme.sh --issue` 时参与生成参数；`acme.sh --cron` 会使用已保存的签发配置。修改 `ACME_ALIAS` 或此变量时，请保留旧 CNAME，直到相关证书按新配置重新签发并确认续期路径已经更新。
 
 ## Cloudflare Universal SSL 冲突
 
