@@ -7,6 +7,7 @@ AutoSSL is an open-source project built on top of acme.sh, designed to provide a
 - **Centralized SSL Certificate Generation**: Generate SSL certificates on a single server.
 - **HTTP Distribution**: Distribute the generated certificates to other servers via HTTP.
 - **DNS Alias Mode**: Uses DNS alias mode for certificate generation. Please refer to the [acme.sh documentation](https://github.com/acmesh-official/acme.sh/wiki/DNS-alias-mode) for more details.
+- **Web Console**: Sign in to add and remove domain certificates, then copy certificate links for deployment scripts.
 
 ## Getting Started
 
@@ -30,7 +31,7 @@ services:
       - data:/root/data
       - acme:/root/.acme.sh
     ports:
-      - "1323:1323"
+      - "3000:3000"
     environment:
       - DOMAIN=https://example.com
       - ADMIN_USERNAME=admin
@@ -53,6 +54,10 @@ Run the following command to start the service:
 ```sh
 docker-compose up -d
 ```
+
+Open `http://localhost:3000` and sign in with `ADMIN_USERNAME` and `ADMIN_PASSWORD`.
+
+The container exposes only the web service. It calls the Go API over the container loopback interface, and `/dl/:file` remains available through the web service for certificate distribution.
 
 ### Configuration
 

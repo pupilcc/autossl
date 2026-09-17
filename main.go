@@ -60,5 +60,9 @@ func main() {
 	c.Start()
 
 	// Start the service
-	e.Logger.Fatal(e.Start(":1323"))
+	addr := os.Getenv("AUTOSSL_ADDR")
+	if addr == "" {
+		addr = ":1323"
+	}
+	e.Logger.Fatal(e.Start(addr))
 }

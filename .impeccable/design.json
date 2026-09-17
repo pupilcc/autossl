@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-17T23:53:07+08:00",
+  "title": "Design System: AutoSSL Console",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Cool Workspace",
+        "canonical": "hsl(210 20% 98%)",
+        "tonalRamp": ["hsl(210 20% 15%)", "hsl(210 20% 27%)", "hsl(210 20% 39%)", "hsl(210 20% 51%)", "hsl(210 20% 63%)", "hsl(210 20% 75%)", "hsl(210 20% 87%)", "hsl(210 20% 98%)"]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Ink Green",
+        "canonical": "hsl(150 18% 13%)",
+        "tonalRamp": ["hsl(150 18% 13%)", "hsl(150 18% 25%)", "hsl(150 18% 37%)", "hsl(150 18% 49%)", "hsl(150 18% 61%)", "hsl(150 18% 73%)", "hsl(150 18% 85%)", "hsl(150 18% 95%)"]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Clear Surface",
+        "canonical": "hsl(0 0% 100%)",
+        "tonalRamp": ["hsl(0 0% 15%)", "hsl(0 0% 27%)", "hsl(0 0% 39%)", "hsl(0 0% 51%)", "hsl(0 0% 63%)", "hsl(0 0% 75%)", "hsl(0 0% 87%)", "hsl(0 0% 100%)"]
+      },
+      "primary": {
+        "role": "primary",
+        "displayName": "Operational Green",
+        "canonical": "hsl(158 62% 27%)",
+        "tonalRamp": ["hsl(158 62% 15%)", "hsl(158 62% 27%)", "hsl(158 62% 39%)", "hsl(158 62% 51%)", "hsl(158 62% 63%)", "hsl(158 62% 75%)", "hsl(158 62% 87%)", "hsl(158 62% 95%)"]
+      },
+      "primary-foreground": {
+        "role": "neutral",
+        "displayName": "Primary White",
+        "canonical": "hsl(0 0% 100%)",
+        "tonalRamp": ["hsl(0 0% 15%)", "hsl(0 0% 27%)", "hsl(0 0% 39%)", "hsl(0 0% 51%)", "hsl(0 0% 63%)", "hsl(0 0% 75%)", "hsl(0 0% 87%)", "hsl(0 0% 100%)"]
+      },
+      "secondary": {
+        "role": "neutral",
+        "displayName": "Quiet Fill",
+        "canonical": "hsl(150 12% 94%)",
+        "tonalRamp": ["hsl(150 12% 15%)", "hsl(150 12% 27%)", "hsl(150 12% 39%)", "hsl(150 12% 51%)", "hsl(150 12% 63%)", "hsl(150 12% 75%)", "hsl(150 12% 87%)", "hsl(150 12% 94%)"]
+      },
+      "muted-foreground": {
+        "role": "neutral",
+        "displayName": "Reference Gray",
+        "canonical": "hsl(150 6% 42%)",
+        "tonalRamp": ["hsl(150 6% 15%)", "hsl(150 6% 27%)", "hsl(150 6% 39%)", "hsl(150 6% 51%)", "hsl(150 6% 63%)", "hsl(150 6% 75%)", "hsl(150 6% 87%)", "hsl(150 6% 95%)"]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Soft Divider",
+        "canonical": "hsl(150 12% 86%)",
+        "tonalRamp": ["hsl(150 12% 15%)", "hsl(150 12% 27%)", "hsl(150 12% 39%)", "hsl(150 12% 51%)", "hsl(150 12% 63%)", "hsl(150 12% 75%)", "hsl(150 12% 86%)", "hsl(150 12% 95%)"]
+      },
+      "destructive": {
+        "role": "tertiary",
+        "displayName": "Action Red",
+        "canonical": "hsl(0 68% 47%)",
+        "tonalRamp": ["hsl(0 68% 15%)", "hsl(0 68% 27%)", "hsl(0 68% 39%)", "hsl(0 68% 51%)", "hsl(0 68% 63%)", "hsl(0 68% 75%)", "hsl(0 68% 87%)", "hsl(0 68% 95%)"]
+      },
+      "ring": {
+        "role": "primary",
+        "displayName": "Focus Green",
+        "canonical": "hsl(158 62% 32%)",
+        "tonalRamp": ["hsl(158 62% 15%)", "hsl(158 62% 27%)", "hsl(158 62% 39%)", "hsl(158 62% 51%)", "hsl(158 62% 63%)", "hsl(158 62% 75%)", "hsl(158 62% 87%)", "hsl(158 62% 95%)"]
+      }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline", "purpose": "Certificate page titles." },
+      "title": { "displayName": "Title", "purpose": "Identity, domain names, and dialogs." },
+      "body": { "displayName": "Body", "purpose": "Operational content and controls." },
+      "label": { "displayName": "Label", "purpose": "Field labels and metadata." }
+    },
+    "shadows": [
+      { "name": "record", "value": "0 8px 30px rgba(16,35,25,0.07)", "purpose": "Certificate table and card surfaces." },
+      { "name": "login", "value": "0 18px 55px rgba(16,35,25,0.11)", "purpose": "Login panel." },
+      { "name": "dialog", "value": "0 18px 50px rgba(16,35,25,0.18)", "purpose": "Destructive confirmation dialog." }
+    ],
+    "motion": [
+      { "name": "state", "value": "200ms ease", "purpose": "Color, opacity, and dialog state transitions." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary command with a stable touch target.",
+      "html": "<button class=\"ds-btn-primary\">添加域名</button>",
+      "css": ".ds-btn-primary { height: 44px; padding: 0 16px; border: 0; border-radius: 8px; background: hsl(158 62% 27%); color: white; font: 500 14px Inter, system-ui, sans-serif; transition: background-color 200ms ease; } .ds-btn-primary:hover { background: hsl(158 62% 24%); } .ds-btn-primary:focus-visible { outline: 2px solid hsl(158 62% 32%); outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action on a clear surface.",
+      "html": "<button class=\"ds-btn-outline\">取消</button>",
+      "css": ".ds-btn-outline { height: 44px; padding: 0 16px; border: 1px solid hsl(150 12% 86%); border-radius: 8px; background: white; color: hsl(150 18% 13%); font: 500 14px Inter, system-ui, sans-serif; transition: background-color 200ms ease; } .ds-btn-outline:hover { background: hsl(150 12% 94%); } .ds-btn-outline:focus-visible { outline: 2px solid hsl(158 62% 32%); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Compact labeled input for credentials and domains.",
+      "html": "<input class=\"ds-input\" value=\"example.com\" aria-label=\"基础域名\">",
+      "css": ".ds-input { width: 280px; height: 44px; padding: 8px 12px; border: 1px solid hsl(150 12% 82%); border-radius: 8px; background: white; color: hsl(150 18% 13%); font: 400 14px Inter, system-ui, sans-serif; transition: border-color 200ms ease, box-shadow 200ms ease; } .ds-input:hover { border-color: hsl(150 18% 65%); } .ds-input:focus-visible { border-color: hsl(158 62% 32%); outline: none; box-shadow: 0 0 0 2px hsl(158 62% 32% / 0.2); }"
+    },
+    {
+      "name": "Count Badge",
+      "kind": "chip",
+      "description": "Quiet numeric context beside the page title.",
+      "html": "<span class=\"ds-badge\">2</span>",
+      "css": ".ds-badge { display: inline-flex; height: 24px; align-items: center; padding: 0 10px; border-radius: 9999px; background: hsl(150 12% 94%); color: hsl(150 20% 18%); font: 500 12px Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Certificate Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Responsive record surface used below the desktop breakpoint.",
+      "html": "<article class=\"ds-cert-card\"><h3>example.com</h3><div><small>证书链接</small><code>/dl/example.crt</code><small>私钥链接</small><code>/dl/example.key</code></div><footer>删除</footer></article>",
+      "css": ".ds-cert-card { width: 340px; overflow: hidden; border-radius: 10px; background: white; color: hsl(150 18% 13%); box-shadow: 0 8px 30px rgba(16,35,25,0.07); font-family: Inter, system-ui, sans-serif; } .ds-cert-card h3 { margin: 0; padding: 16px; font-size: 16px; } .ds-cert-card div { display: grid; gap: 8px; padding: 16px; border-block: 1px solid hsl(150 12% 86%); } .ds-cert-card small { color: hsl(150 6% 42%); } .ds-cert-card code { margin-bottom: 8px; font-size: 12px; } .ds-cert-card footer { padding: 12px 16px; color: hsl(0 68% 47%); text-align: right; } .ds-cert-card:focus-within { outline: 2px solid hsl(158 62% 32%); outline-offset: 2px; }"
+    },
+    {
+      "name": "Top Navigation",
+      "kind": "nav",
+      "description": "Single-level identity and sign-out bar.",
+      "html": "<nav class=\"ds-nav\"><strong>AutoSSL</strong><button>退出</button></nav>",
+      "css": ".ds-nav { display: flex; height: 64px; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid hsl(150 12% 86%); background: white; color: hsl(150 18% 13%); font-family: Inter, system-ui, sans-serif; } .ds-nav button { height: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: inherit; } .ds-nav button:hover { background: hsl(150 12% 94%); } .ds-nav button:focus-visible { outline: 2px solid hsl(158 62% 32%); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Operations Desk",
+    "overview": "AutoSSL is a compact administrative surface where clarity outranks decoration. It uses a cool near-white workspace, crisp white work surfaces, and a restrained green accent to make certificate actions easy to scan and verify. The interface should feel calm, trustworthy, and direct.",
+    "keyCharacteristics": [
+      "Compact operational density with generous touch targets.",
+      "Green is reserved for identity, focus, and primary actions.",
+      "Certificate URLs remain visible, selectable, and paired with explicit copy actions.",
+      "Destructive actions are red, secondary, and always confirmed."
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Operational green is the only positive accent; do not introduce competing brand colors.", "section": "colors" },
+      { "name": "The Compact Type Rule", "body": "Keep operational labels and table content small enough to scan while preserving readable line height and 44px controls.", "section": "typography" },
+      { "name": "The Flat Workspace Rule", "body": "Do not wrap page sections in decorative cards. Reserve elevation for actual records, forms, and modal content.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep primary workflows on one page and make their current state obvious.",
+      "Do preserve 44px control targets, keyboard focus, semantic labels, and reduced-motion behavior.",
+      "Do switch records to cards below 1024px so all actions remain discoverable.",
+      "Do show copyable certificate URLs; scripts are the intended consumer."
+    ],
+    "donts": [
+      "Don't add certificate download buttons to the console.",
+      "Don't expose API bearer tokens or call administrative Go endpoints from browser code.",
+      "Don't add a sidebar, marketing hero, decorative gradients, or nested cards.",
+      "Don't use green for deletion or red for routine status."
+    ]
+  }
+}
