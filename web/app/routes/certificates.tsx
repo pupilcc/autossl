@@ -360,17 +360,15 @@ export default function CertificatesPage() {
                     key={certificate.code}
                     className="grid gap-5 border-x border-t bg-card p-4 transition-colors hover:bg-secondary/25 last:border-b sm:p-5 lg:grid-cols-[minmax(0,1fr)_12rem_auto] lg:items-center"
                   >
-                    <div className="flex min-w-0 items-start gap-3">
-                      <span className="mt-1 size-2.5 shrink-0 bg-primary" aria-hidden="true" />
-                      <div className="min-w-0">
-                        <h3 className="truncate text-lg font-semibold">{certificate.domain}</h3>
-                        <p className="mt-1 truncate font-mono text-xs text-muted-foreground">
-                          {(certificate.dnsNames?.length
-                            ? certificate.dnsNames
-                            : [certificate.domain, `*.${certificate.domain}`]
-                          ).join(" + ")}
-                        </p>
-                      </div>
+                    <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-3">
+                      <span className="size-2.5 self-center bg-primary" aria-hidden="true" />
+                      <h3 className="truncate text-lg font-semibold">{certificate.domain}</h3>
+                      <p className="col-start-2 mt-1 truncate font-mono text-xs text-muted-foreground">
+                        {(certificate.dnsNames?.length
+                          ? certificate.dnsNames
+                          : [certificate.domain, `*.${certificate.domain}`]
+                        ).join(" + ")}
+                      </p>
                     </div>
 
                     <dl className="grid grid-cols-2 gap-3 border-y py-3 text-xs sm:max-w-sm lg:block lg:border-y-0 lg:border-l lg:py-0 lg:pl-5">
