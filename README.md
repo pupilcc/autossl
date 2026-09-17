@@ -33,7 +33,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DOMAIN=https://example.com
+      - PUBLIC_API_URL=https://api.example.com
+      - PUBLIC_CONSOLE_URL=https://console.example.com
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=123456
       - ACME_CA=letsencrypt
@@ -61,7 +62,8 @@ The container exposes only the web service. It calls the Go API over the contain
 
 ### Configuration
 
-- `DOMAIN`: The domain for the SSL certificate.
+- `PUBLIC_API_URL`: The public API URL used to build certificate download links.
+- `PUBLIC_CONSOLE_URL`: The public console URL allowed to submit actions.
 - `ADMIN_USERNAME`: The username for the admin interface.
 - `ADMIN_PASSWORD`: The password for the admin interface.
 - `ACME_CA`: The Certificate Authority (e.g., letsencrypt).

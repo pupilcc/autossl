@@ -101,7 +101,7 @@ func ListCert() ([]*model.Cert, error) {
 		return nil, err
 	}
 
-	dm := os.Getenv("DOMAIN")
+	dm := os.Getenv("PUBLIC_API_URL")
 	url := dm + "/dl/"
 	for _, cert := range list {
 		certLink := url + cert.Code + ".crt"

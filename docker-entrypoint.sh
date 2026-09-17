@@ -5,7 +5,7 @@ set -uo pipefail
 api_pid=$!
 
 cd /root/web
-./node_modules/.bin/react-router-serve ./build/server/index.js &
+./node_modules/.bin/react-router-serve ./server.mjs &
 web_pid=$!
 
 shutdown() {

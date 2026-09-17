@@ -23,6 +23,7 @@ COPY --from=go-builder /go/bin/autossl .
 COPY --from=web-builder /src/web/build ./web/build
 COPY --from=web-builder /src/web/node_modules ./web/node_modules
 COPY --from=web-builder /src/web/package.json ./web/package.json
+COPY --from=web-builder /src/web/server.mjs ./web/server.mjs
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh
 ENV AUTOSSL_ADDR=127.0.0.1:1323 \
