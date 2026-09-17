@@ -7,6 +7,8 @@ import (
 	"autossl/infrastructure/repository"
 	"autossl/infrastructure/util"
 	"crypto/md5"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -104,6 +106,8 @@ func ListCert() ([]*model.Cert, error) {
 	dm := os.Getenv("PUBLIC_API_URL")
 	url := dm + "/dl/"
 	for _, cert := range list {
+		cert.Domain = baseDomain(cert.Domain)
+		cert.DNSNames = certificateDNSNames(filepath.Join(acme.CertPath, cert.Code+".crt"))
 		certLink := url + cert.Code + ".crt"
 		keyLink := url + cert.Code + ".key"
 		cert.Cert = certLink
@@ -111,6 +115,32 @@ func ListCert() ([]*model.Cert, error) {
 	}
 
 	return list, nil
+}
+
+func certificateDNSNames(path string) []string {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+
+	for {
+		block, rest := pem.Decode(data)
+		if block == nil {
+			certificate, err := x509.ParseCertificate(data)
+			if err == nil {
+				return certificate.DNSNames
+			}
+			return nil
+		}
+		data = rest
+		if block.Type != "CERTIFICATE" {
+			continue
+		}
+		certificate, err := x509.ParseCertificate(block.Bytes)
+		if err == nil && len(certificate.DNSNames) > 0 {
+			return certificate.DNSNames
+		}
+	}
 }
 
 func DeleteCert(code string) error {

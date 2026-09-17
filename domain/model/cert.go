@@ -6,8 +6,9 @@ type CertCommand struct {
 }
 
 type Cert struct {
-	Code   string `json:"code"`
-	Domain string `json:"domain"`
-	Cert   string `json:"cert"`
-	Key    string `json:"key"`
+	Code     string   `json:"code"`
+	Domain   string   `json:"domain"`
+	DNSNames []string `json:"dnsNames"`
+	Cert     string   `json:"cert"`
+	Key      string   `json:"key"`
 }

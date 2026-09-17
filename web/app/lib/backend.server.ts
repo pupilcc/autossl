@@ -6,6 +6,7 @@ const apiBaseUrl = (process.env.AUTOSSL_API_URL ?? "http://127.0.0.1:1323").repl
 export type Certificate = {
   code: string;
   domain: string;
+  dnsNames: string[] | null;
   cert: string;
   key: string;
 };

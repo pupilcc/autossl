@@ -365,7 +365,10 @@ export default function CertificatesPage() {
                       <div className="min-w-0">
                         <h3 className="truncate text-lg font-semibold">{certificate.domain}</h3>
                         <p className="mt-1 truncate font-mono text-xs text-muted-foreground">
-                          {certificate.domain} + *.{certificate.domain}
+                          {(certificate.dnsNames?.length
+                            ? certificate.dnsNames
+                            : [certificate.domain, `*.${certificate.domain}`]
+                          ).join(" + ")}
                         </p>
                       </div>
                     </div>
