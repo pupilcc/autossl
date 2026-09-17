@@ -1,13 +1,9 @@
 import {
-  Activity,
   Check,
   Clipboard,
-  FileKey2,
-  Globe2,
   KeyRound,
   LoaderCircle,
   LogOut,
-  RefreshCw,
   ShieldCheck,
   Trash2,
 } from "lucide-react";
@@ -34,18 +30,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   BackendError,
   createCertificate,
@@ -146,22 +133,20 @@ function AddCertificateForm() {
   const submitting = fetcher.state !== "idle";
 
   return (
-    <aside className="rounded-lg border bg-card p-5 lg:sticky lg:top-6">
-      <div className="flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
-          <FileKey2 aria-hidden="true" className="size-5" />
+    <section className="border-2 border-foreground bg-card" aria-labelledby="issue-title">
+      <div className="flex min-h-11 items-center justify-between gap-4 bg-foreground px-4 py-2 text-card">
+        <h2 id="issue-title" className="font-mono text-xs font-semibold uppercase">
+          01 / 签发证书
+        </h2>
+        <span className="flex items-center gap-2 text-xs text-card/70">
+          <ShieldCheck aria-hidden="true" className="size-4 text-primary" />
+          DNS-01 验证
         </span>
-        <div>
-          <h2 className="font-semibold">签发新证书</h2>
-          <p className="mt-1 text-sm leading-5 text-muted-foreground">
-            同时覆盖根域名和通配符域名。
-          </p>
-        </div>
       </div>
       <fetcher.Form
         ref={formRef}
         method="post"
-        className="mt-6 space-y-4"
+        className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_10rem] lg:items-end"
       >
         <input type="hidden" name="intent" value="create" />
         <div className="space-y-2">
@@ -172,6 +157,7 @@ function AddCertificateForm() {
             inputMode="url"
             autoComplete="off"
             placeholder="example.com"
+            className="h-12 rounded-none border-foreground shadow-none"
             pattern="(?=.{1,253}$)([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?"
             title="请输入基础域名，例如 example.com"
             aria-describedby="domain-hint"
@@ -182,23 +168,23 @@ function AddCertificateForm() {
             无需填写协议或 * 前缀。
           </p>
         </div>
-        <Button type="submit" className="w-full" disabled={submitting}>
+        <Button type="submit" className="h-12 w-full rounded-none" disabled={submitting}>
           {submitting ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Check aria-hidden="true" />}
           {submitting ? "正在签发" : "签发证书"}
         </Button>
       </fetcher.Form>
 
-      <dl className="mt-6 space-y-3 border-t pt-5 text-sm">
-        <div className="flex items-center justify-between gap-4">
-          <dt className="text-muted-foreground">验证方式</dt>
-          <dd className="font-medium">DNS-01</dd>
+      <dl className="grid border-t bg-secondary/45 text-xs sm:grid-cols-2 sm:divide-x">
+        <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-5">
+          <dt className="text-muted-foreground">覆盖范围</dt>
+          <dd className="font-medium">根域名 + 通配符</dd>
         </div>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 border-t px-4 py-3 sm:border-t-0 sm:px-5">
           <dt className="text-muted-foreground">密钥算法</dt>
           <dd className="font-medium">ECDSA P-256</dd>
         </div>
       </dl>
-    </aside>
+    </section>
   );
 }
 
@@ -217,34 +203,40 @@ async function copyText(value: string) {
   textarea.remove();
 }
 
-function CertificateLink({ label, value }: { label: string; value: string }) {
+function CopyCertificate({
+  label,
+  value,
+  sensitive = false,
+}: {
+  label: string;
+  value: string;
+  sensitive?: boolean;
+}) {
   const copy = async () => {
     try {
       await copyText(value);
       toast.success(`${label}已复制。`);
     } catch {
-      toast.error("复制失败，请手动选择链接。");
+      toast.error("复制失败，请允许浏览器访问剪贴板后重试。");
     }
   };
 
-  if (!value) return <span className="text-muted-foreground">未配置</span>;
-
   return (
-    <div className="flex min-w-0 items-center gap-1 rounded-md bg-secondary/55 py-1 pl-3 pr-1">
-      <code className="min-w-0 flex-1 truncate text-xs text-foreground" title={value}>
-        {value}
-      </code>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={copy}
-        aria-label={`复制${label}`}
-        title={`复制${label}`}
-      >
-        <Clipboard aria-hidden="true" />
-      </Button>
-    </div>
+    <Button
+      type="button"
+      variant="outline"
+      onClick={copy}
+      disabled={!value}
+      className={
+        sensitive
+          ? "border-accent bg-accent text-accent-foreground hover:bg-accent/80"
+          : undefined
+      }
+      aria-label={value ? `复制${label}` : `${label}未配置`}
+    >
+      <Clipboard aria-hidden="true" />
+      {value ? `复制${label}` : `${label}未配置`}
+    </Button>
   );
 }
 
@@ -292,25 +284,30 @@ export default function CertificatesPage() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b bg-card">
-        <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <header className="border-b-4 border-primary bg-foreground text-card">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <span className="grid size-10 place-items-center rounded-md bg-primary text-primary-foreground">
-              <ShieldCheck aria-hidden="true" className="size-5.5" />
+            <span className="grid size-9 place-items-center bg-primary text-primary-foreground">
+              <ShieldCheck aria-hidden="true" className="size-5" />
             </span>
             <div>
               <p className="font-semibold leading-5">AutoSSL</p>
-              <p className="hidden text-xs text-muted-foreground sm:block">证书运维控制台</p>
+              <p className="hidden font-mono text-[11px] text-card/55 sm:block">CERTIFICATE CONTROL</p>
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
-            <span className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
-              <span className="size-2 rounded-full bg-primary" aria-hidden="true" />
-              服务已连接
+            <span className="hidden items-center gap-2 font-mono text-xs text-card/70 sm:flex">
+              <span className="size-2 bg-primary" aria-hidden="true" />
+              API ONLINE
             </span>
             <Form method="post">
               <input type="hidden" name="intent" value="logout" />
-              <Button type="submit" variant="ghost" size="sm">
+              <Button
+                type="submit"
+                variant="ghost"
+                size="sm"
+                className="text-card hover:bg-card/10 hover:text-card"
+              >
                 <LogOut aria-hidden="true" />
                 <span className="hidden sm:inline">退出登录</span>
                 <span className="sm:hidden">退出</span>
@@ -321,153 +318,80 @@ export default function CertificatesPage() {
       </header>
 
       <main>
-        <section className="border-b bg-card">
-          <div className="mx-auto max-w-7xl px-4 pb-0 pt-8 sm:px-6 sm:pt-10 lg:px-8">
-            <div className="max-w-2xl">
-              <p className="text-sm font-medium text-primary">证书管理</p>
-              <h1 className="mt-2 text-2xl font-semibold sm:text-[28px]">证书控制台</h1>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
-                集中签发 SSL 证书，并为部署脚本提供稳定的证书与私钥地址。
+        <section className="border-b-2 border-foreground bg-card">
+          <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10 md:flex-row md:items-end md:justify-between lg:px-8">
+            <div>
+              <p className="font-mono text-xs font-semibold text-primary">/ INFRASTRUCTURE</p>
+              <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">证书资源</h1>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+                签发、续期并分发根域名与通配符证书。
               </p>
             </div>
-
-            <div className="mt-8 grid divide-y border-t sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-              <div className="flex items-center gap-3 py-4 sm:pr-6">
-                <Activity aria-hidden="true" className="size-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">托管证书</p>
-                  <p className="mt-0.5 text-sm font-semibold tabular-nums">{certificates.length} 个域名</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 py-4 sm:px-6">
-                <Globe2 aria-hidden="true" className="size-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">签发范围</p>
-                  <p className="mt-0.5 text-sm font-semibold">根域名 + 通配符</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 py-4 sm:pl-6">
-                <RefreshCw aria-hidden="true" className="size-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">续期策略</p>
-                  <p className="mt-0.5 text-sm font-semibold">每日自动检查</p>
-                </div>
-              </div>
+            <div className="flex items-end gap-3 border-l-4 border-primary pl-4 md:text-right">
+              <strong className="text-4xl font-semibold tabular-nums sm:text-5xl">{certificates.length}</strong>
+              <span className="pb-1 text-xs leading-5 text-muted-foreground">
+                个域名<br />正在托管
+              </span>
             </div>
           </div>
         </section>
 
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 xl:grid-cols-[minmax(0,1fr)_19rem] xl:gap-8">
-          <div className="xl:order-2">
-            <AddCertificateForm />
-          </div>
+        <div className="mx-auto max-w-7xl space-y-10 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <AddCertificateForm />
 
-          <section aria-labelledby="certificate-list-title" className="min-w-0 xl:order-1">
-            <div className="mb-4 flex items-end justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 id="certificate-list-title" className="text-lg font-semibold">证书与分发地址</h2>
-                  <Badge variant="secondary">{certificates.length}</Badge>
-                </div>
-                <p className="mt-1 text-sm text-muted-foreground">复制地址后即可用于自动化部署。</p>
-              </div>
+          <section aria-labelledby="certificate-list-title">
+            <div className="mb-4 flex items-center justify-between gap-4 border-b-2 border-foreground pb-3">
+              <h2 id="certificate-list-title" className="font-mono text-xs font-semibold uppercase">
+                02 / 证书资源
+              </h2>
+              <span className="font-mono text-xs text-muted-foreground">TOTAL {certificates.length}</span>
             </div>
 
             {certificates.length === 0 ? (
-              <div className="grid min-h-72 place-items-center rounded-lg border border-dashed bg-card px-6 text-center">
+              <div className="grid min-h-64 place-items-center border-x border-b bg-card px-6 text-center">
                 <div>
-                  <span className="mx-auto grid size-12 place-items-center rounded-md bg-secondary text-primary">
+                  <span className="mx-auto grid size-12 place-items-center border-2 border-foreground text-primary">
                     <KeyRound aria-hidden="true" className="size-6" />
                   </span>
-                  <h3 className="mt-4 font-semibold">暂无域名证书</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">新签发的证书会显示在这里。</p>
+                  <h3 className="mt-4 font-semibold">暂无证书资源</h3>
                 </div>
               </div>
             ) : (
-              <>
-                <div className="hidden overflow-hidden rounded-lg border bg-card xl:block">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[22%]">覆盖域名</TableHead>
-                        <TableHead className="w-[31%]">证书地址</TableHead>
-                        <TableHead className="w-[31%]">私钥地址 · 敏感</TableHead>
-                        <TableHead className="w-[16%] text-right">
-                          <span className="sr-only">操作</span>
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {certificates.map((certificate) => (
-                        <TableRow key={certificate.code}>
-                          <TableCell>
-                            <p className="font-medium">{certificate.domain}</p>
-                            <p className="mt-1 text-xs text-muted-foreground">*.{certificate.domain}</p>
-                          </TableCell>
-                          <TableCell>
-                            <CertificateLink
-                              label={`${certificate.domain} 的证书地址`}
-                              value={certificate.cert}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <CertificateLink
-                              label={`${certificate.domain} 的私钥地址`}
-                              value={certificate.key}
-                            />
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <DeleteCertificate code={certificate.code} domain={certificate.domain} />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                <div className="space-y-3 xl:hidden">
-                  {certificates.map((certificate) => (
-                    <article
-                      key={certificate.code}
-                      className="overflow-hidden rounded-lg border bg-card"
-                    >
-                      <div className="flex items-start justify-between gap-4 px-4 py-4">
-                        <div className="min-w-0">
-                          <h3 className="truncate font-semibold">{certificate.domain}</h3>
-                          <p className="mt-1 truncate text-xs text-muted-foreground">*.{certificate.domain}</p>
-                        </div>
-                        <DeleteCertificate code={certificate.code} domain={certificate.domain} />
+              <div>
+                {certificates.map((certificate) => (
+                  <article
+                    key={certificate.code}
+                    className="grid gap-5 border-x border-t bg-card p-4 transition-colors hover:bg-secondary/25 last:border-b sm:p-5 lg:grid-cols-[minmax(0,1fr)_12rem_auto] lg:items-center"
+                  >
+                    <div className="flex min-w-0 items-start gap-3">
+                      <span className="mt-1 size-2.5 shrink-0 bg-primary" aria-hidden="true" />
+                      <div className="min-w-0">
+                        <h3 className="truncate text-lg font-semibold">{certificate.domain}</h3>
+                        <p className="mt-1 truncate font-mono text-xs text-muted-foreground">
+                          {certificate.domain} + *.{certificate.domain}
+                        </p>
                       </div>
-                      <dl className="space-y-4 border-t bg-secondary/20 px-4 py-4">
-                        <div className="min-w-0 space-y-2">
-                          <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                            <ShieldCheck aria-hidden="true" className="size-3.5" />
-                            证书地址
-                          </dt>
-                          <dd>
-                            <CertificateLink
-                              label={`${certificate.domain} 的证书地址`}
-                              value={certificate.cert}
-                            />
-                          </dd>
-                        </div>
-                        <div className="min-w-0 space-y-2">
-                          <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                            <KeyRound aria-hidden="true" className="size-3.5" />
-                            私钥地址 · 敏感
-                          </dt>
-                          <dd>
-                            <CertificateLink
-                              label={`${certificate.domain} 的私钥地址`}
-                              value={certificate.key}
-                            />
-                          </dd>
-                        </div>
-                      </dl>
-                    </article>
-                  ))}
-                </div>
-              </>
+                    </div>
+
+                    <dl className="grid grid-cols-2 gap-3 border-y py-3 text-xs sm:max-w-sm lg:block lg:border-y-0 lg:border-l lg:py-0 lg:pl-5">
+                      <div>
+                        <dt className="text-muted-foreground">验证</dt>
+                        <dd className="mt-1 font-medium">DNS-01</dd>
+                      </div>
+                      <div className="lg:mt-3">
+                        <dt className="text-muted-foreground">算法</dt>
+                        <dd className="mt-1 font-medium">ECDSA P-256</dd>
+                      </div>
+                    </dl>
+
+                    <div className="flex flex-wrap gap-2 lg:justify-end">
+                      <CopyCertificate label="证书地址" value={certificate.cert} />
+                      <CopyCertificate label="私钥地址" value={certificate.key} sensitive />
+                      <DeleteCertificate code={certificate.code} domain={certificate.domain} />
+                    </div>
+                  </article>
+                ))}
+              </div>
             )}
           </section>
         </div>

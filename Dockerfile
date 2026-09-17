@@ -26,10 +26,10 @@ COPY --from=web-builder /src/web/package.json ./web/package.json
 COPY --from=web-builder /src/web/server.mjs ./web/server.mjs
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh
-ENV AUTOSSL_ADDR=127.0.0.1:1323 \
+ENV AUTOSSL_ADDR=0.0.0.0:1323 \
     AUTOSSL_API_URL=http://127.0.0.1:1323 \
     NODE_ENV=production \
     PORT=3000
-EXPOSE 3000
+EXPOSE 1323 3000
 ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["./docker-entrypoint.sh"]
