@@ -50,22 +50,7 @@ func Install(name string, id string) error {
 }
 
 func Remove(name string) error {
-	cmd := exec.Command(filepath.Join(usr.HomeDir, ".acme.sh/acme.sh"), "--remove", "--ecc", "--domain", name)
-	logger.Info("command", zap.String("Running command:", strings.Join(cmd.Args, " ")))
-	err := execIssue(cmd)
-	if err != nil {
-		return err
-	}
-
-	folder := filepath.Join(usr.HomeDir, ".acme.sh", name+"_ecc")
-	filePaths := []string{folder}
-	for _, filePath := range filePaths {
-		err := os.RemoveAll(filePath)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return os.RemoveAll(filepath.Join(usr.HomeDir, ".acme.sh", name+"_ecc"))
 }
 
 func Cron() error {
