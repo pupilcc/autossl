@@ -2,23 +2,23 @@
 
 :root {
   --radius: 0.5rem;
-  --background: 210 20% 98%;
-  --foreground: 150 18% 13%;
+  --background: 210 24% 97%;
+  --foreground: 220 24% 14%;
   --card: 0 0% 100%;
-  --card-foreground: 150 18% 13%;
-  --primary: 158 62% 27%;
+  --card-foreground: 220 24% 14%;
+  --primary: 160 72% 24%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 150 12% 94%;
-  --secondary-foreground: 150 20% 18%;
-  --muted: 150 10% 94%;
-  --muted-foreground: 150 6% 42%;
+  --secondary: 210 20% 94%;
+  --secondary-foreground: 220 20% 22%;
+  --muted: 210 18% 95%;
+  --muted-foreground: 215 13% 40%;
   --accent: 42 94% 92%;
   --accent-foreground: 32 76% 25%;
   --destructive: 0 68% 47%;
   --destructive-foreground: 0 0% 100%;
-  --border: 150 12% 86%;
-  --input: 150 12% 82%;
-  --ring: 158 62% 32%;
+  --border: 214 19% 86%;
+  --input: 214 16% 80%;
+  --ring: 160 72% 29%;
 }
 
 @theme inline {
