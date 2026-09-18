@@ -15,11 +15,11 @@ func init() {
 	certFields := schema.Cert{}.Fields()
 	_ = certFields
 	// certDescCreatedAt is the schema descriptor for created_at field.
-	certDescCreatedAt := certFields[2].Descriptor()
+	certDescCreatedAt := certFields[4].Descriptor()
 	// cert.DefaultCreatedAt holds the default value on creation for the created_at field.
 	cert.DefaultCreatedAt = certDescCreatedAt.Default.(func() time.Time)
 	// certDescUpdatedAt is the schema descriptor for updated_at field.
-	certDescUpdatedAt := certFields[3].Descriptor()
+	certDescUpdatedAt := certFields[5].Descriptor()
 	// cert.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	cert.DefaultUpdatedAt = certDescUpdatedAt.Default.(func() time.Time)
 	// cert.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

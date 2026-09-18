@@ -10,7 +10,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
   const response = await downloadFromBackend(file, request.method === "HEAD" ? "HEAD" : "GET");
   const headers = new Headers();
-  for (const name of ["content-type", "content-length", "etag", "last-modified"]) {
+  for (const name of ["cache-control", "content-type", "content-length", "etag", "last-modified"]) {
     const value = response.headers.get(name);
     if (value) headers.set(name, value);
   }

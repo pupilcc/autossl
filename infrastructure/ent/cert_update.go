@@ -42,6 +42,46 @@ func (cu *CertUpdate) SetNillableCode(s *string) *CertUpdate {
 	return cu
 }
 
+// SetCertCode sets the "cert_code" field.
+func (cu *CertUpdate) SetCertCode(s string) *CertUpdate {
+	cu.mutation.SetCertCode(s)
+	return cu
+}
+
+// SetNillableCertCode sets the "cert_code" field if the given value is not nil.
+func (cu *CertUpdate) SetNillableCertCode(s *string) *CertUpdate {
+	if s != nil {
+		cu.SetCertCode(*s)
+	}
+	return cu
+}
+
+// ClearCertCode clears the value of the "cert_code" field.
+func (cu *CertUpdate) ClearCertCode() *CertUpdate {
+	cu.mutation.ClearCertCode()
+	return cu
+}
+
+// SetKeyCode sets the "key_code" field.
+func (cu *CertUpdate) SetKeyCode(s string) *CertUpdate {
+	cu.mutation.SetKeyCode(s)
+	return cu
+}
+
+// SetNillableKeyCode sets the "key_code" field if the given value is not nil.
+func (cu *CertUpdate) SetNillableKeyCode(s *string) *CertUpdate {
+	if s != nil {
+		cu.SetKeyCode(*s)
+	}
+	return cu
+}
+
+// ClearKeyCode clears the value of the "key_code" field.
+func (cu *CertUpdate) ClearKeyCode() *CertUpdate {
+	cu.mutation.ClearKeyCode()
+	return cu
+}
+
 // SetDomain sets the "domain" field.
 func (cu *CertUpdate) SetDomain(s string) *CertUpdate {
 	cu.mutation.SetDomain(s)
@@ -129,6 +169,18 @@ func (cu *CertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.Code(); ok {
 		_spec.SetField(cert.FieldCode, field.TypeString, value)
 	}
+	if value, ok := cu.mutation.CertCode(); ok {
+		_spec.SetField(cert.FieldCertCode, field.TypeString, value)
+	}
+	if cu.mutation.CertCodeCleared() {
+		_spec.ClearField(cert.FieldCertCode, field.TypeString)
+	}
+	if value, ok := cu.mutation.KeyCode(); ok {
+		_spec.SetField(cert.FieldKeyCode, field.TypeString, value)
+	}
+	if cu.mutation.KeyCodeCleared() {
+		_spec.ClearField(cert.FieldKeyCode, field.TypeString)
+	}
 	if value, ok := cu.mutation.Domain(); ok {
 		_spec.SetField(cert.FieldDomain, field.TypeString, value)
 	}
@@ -169,6 +221,46 @@ func (cuo *CertUpdateOne) SetNillableCode(s *string) *CertUpdateOne {
 	if s != nil {
 		cuo.SetCode(*s)
 	}
+	return cuo
+}
+
+// SetCertCode sets the "cert_code" field.
+func (cuo *CertUpdateOne) SetCertCode(s string) *CertUpdateOne {
+	cuo.mutation.SetCertCode(s)
+	return cuo
+}
+
+// SetNillableCertCode sets the "cert_code" field if the given value is not nil.
+func (cuo *CertUpdateOne) SetNillableCertCode(s *string) *CertUpdateOne {
+	if s != nil {
+		cuo.SetCertCode(*s)
+	}
+	return cuo
+}
+
+// ClearCertCode clears the value of the "cert_code" field.
+func (cuo *CertUpdateOne) ClearCertCode() *CertUpdateOne {
+	cuo.mutation.ClearCertCode()
+	return cuo
+}
+
+// SetKeyCode sets the "key_code" field.
+func (cuo *CertUpdateOne) SetKeyCode(s string) *CertUpdateOne {
+	cuo.mutation.SetKeyCode(s)
+	return cuo
+}
+
+// SetNillableKeyCode sets the "key_code" field if the given value is not nil.
+func (cuo *CertUpdateOne) SetNillableKeyCode(s *string) *CertUpdateOne {
+	if s != nil {
+		cuo.SetKeyCode(*s)
+	}
+	return cuo
+}
+
+// ClearKeyCode clears the value of the "key_code" field.
+func (cuo *CertUpdateOne) ClearKeyCode() *CertUpdateOne {
+	cuo.mutation.ClearKeyCode()
 	return cuo
 }
 
@@ -288,6 +380,18 @@ func (cuo *CertUpdateOne) sqlSave(ctx context.Context) (_node *Cert, err error) 
 	}
 	if value, ok := cuo.mutation.Code(); ok {
 		_spec.SetField(cert.FieldCode, field.TypeString, value)
+	}
+	if value, ok := cuo.mutation.CertCode(); ok {
+		_spec.SetField(cert.FieldCertCode, field.TypeString, value)
+	}
+	if cuo.mutation.CertCodeCleared() {
+		_spec.ClearField(cert.FieldCertCode, field.TypeString)
+	}
+	if value, ok := cuo.mutation.KeyCode(); ok {
+		_spec.SetField(cert.FieldKeyCode, field.TypeString, value)
+	}
+	if cuo.mutation.KeyCodeCleared() {
+		_spec.ClearField(cert.FieldKeyCode, field.TypeString)
 	}
 	if value, ok := cuo.mutation.Domain(); ok {
 		_spec.SetField(cert.FieldDomain, field.TypeString, value)

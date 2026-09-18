@@ -12,6 +12,8 @@ var (
 	CertsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "code", Type: field.TypeString},
+		{Name: "cert_code", Type: field.TypeString, Unique: true, Nullable: true},
+		{Name: "key_code", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "domain", Type: field.TypeString},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},

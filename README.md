@@ -77,14 +77,12 @@ services:
     container_name: autossl
     restart: always
     ports:
-      - "1323:1323"
       - "3000:3000"
     volumes:
       - data:/root/data
       - acme:/root/.acme.sh
     environment:
-      PUBLIC_API_URL: https://api.example.com
-      PUBLIC_CONSOLE_URL: https://ssl.example.com
+      DOMAIN: https://ssl.example.com
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: replace-with-a-long-random-password
       ACME_CA: letsencrypt
@@ -107,14 +105,13 @@ Start the service:
 docker compose up -d
 ```
 
-Configure the HTTPS reverse proxy so `api.example.com` reaches the Go API on port `1323` and `ssl.example.com` reaches the web console on port `3000`. Then sign in and submit only the base domain, such as `example.com`; AutoSSL adds the wildcard automatically.
+Configure the HTTPS reverse proxy so `ssl.example.com` reaches the web console on port `3000`. The Go API listens only on `127.0.0.1:1323` inside the container and must not be exposed directly. Then sign in and submit only the base domain, such as `example.com`; AutoSSL adds the wildcard automatically.
 
 ## Configuration
 
 | Variable | Purpose |
 | --- | --- |
-| `PUBLIC_API_URL` | Public Go API origin, without a trailing slash, used to build `/dl/...` certificate URLs. |
-| `PUBLIC_CONSOLE_URL` | Public console URL allowed to submit administrative actions. |
+| `DOMAIN` | Public console URL used to restrict administrative action origins and build `/dl/...` download links; omit the trailing slash. |
 | `ADMIN_USERNAME` | Console username. |
 | `ADMIN_PASSWORD` | Console password and JWT signing secret; use a long random value. |
 | `ACME_CA` | acme.sh CA name, such as `letsencrypt`. |
@@ -149,6 +146,6 @@ If this occurs, disable Universal SSL under **SSL/TLS -> Edge Certificates** for
 
 ## Certificate distribution
 
-The console provides `.crt` and `.key` URLs for every certificate. These routes are intentionally unauthenticated for deployment scripts; treat the private-key URL as a secret and expose AutoSSL only over HTTPS.
+The console provides `.crt` and `.key` URLs for every certificate. Each download code can be rotated independently, and rotation immediately invalidates the old URL. Private-key responses include `Cache-Control: no-store`; still treat the URL as a secret and expose AutoSSL only over HTTPS.
 
 Use [scripts/distribute-certificates.sh](scripts/distribute-certificates.sh) on each target server. Replace the placeholder URLs and paths in `urls_and_paths`, keep the filenames `fullchain.pem` and `privkey.pem`, and run the script as root. It downloads files atomically, validates them with OpenSSL when available, fixes permissions, and reloads Nginx only when a file changed and `nginx -t` succeeds.

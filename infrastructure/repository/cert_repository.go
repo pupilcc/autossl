@@ -27,6 +27,8 @@ func (repo *CertRepo) Create(cert *model.Cert) error {
 	_, err := repo.Db.Cert.
 		Create().
 		SetCode(cert.Code).
+		SetCertCode(cert.CertCode).
+		SetKeyCode(cert.KeyCode).
 		SetDomain(cert.Domain).
 		Save(context.Background())
 
@@ -47,6 +49,28 @@ func (repo *CertRepo) FindByCode(code string) (*model.Cert, error) {
 		return nil, err
 	}
 	return ToModelCert(first), err
+}
+
+func (repo *CertRepo) FindByCertCode(code string) (*model.Cert, error) {
+	first, err := repo.Db.Cert.Query().Where(cert.Or(
+		cert.CertCodeEQ(code),
+		cert.And(cert.CodeEQ(code), cert.CertCodeIsNil()),
+	)).Only(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return ToModelCert(first), nil
+}
+
+func (repo *CertRepo) FindByKeyCode(code string) (*model.Cert, error) {
+	first, err := repo.Db.Cert.Query().Where(cert.Or(
+		cert.KeyCodeEQ(code),
+		cert.And(cert.CodeEQ(code), cert.KeyCodeIsNil()),
+	)).Only(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return ToModelCert(first), nil
 }
 
 func (repo *CertRepo) List() ([]*model.Cert, error) {
@@ -77,9 +101,21 @@ func (repo *CertRepo) Delete(code string) error {
 	return nil
 }
 
+func (repo *CertRepo) UpdateCertCode(code string, certCode string) error {
+	_, err := repo.Db.Cert.Update().Where(cert.CodeEQ(code)).SetCertCode(certCode).Save(context.Background())
+	return err
+}
+
+func (repo *CertRepo) UpdateKeyCode(code string, keyCode string) error {
+	_, err := repo.Db.Cert.Update().Where(cert.CodeEQ(code)).SetKeyCode(keyCode).Save(context.Background())
+	return err
+}
+
 func ToModelCert(c *ent.Cert) *model.Cert {
 	return &model.Cert{
-		Code:   c.Code,
-		Domain: c.Domain,
+		Code:     c.Code,
+		CertCode: c.CertCode,
+		KeyCode:  c.KeyCode,
+		Domain:   c.Domain,
 	}
 }

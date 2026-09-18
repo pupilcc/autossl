@@ -8,8 +8,8 @@ set -u
 SSL_GROUP="ssl-cert"
 
 declare -A urls_and_paths=(
-    ["https://api.example.com/dl/REPLACE_WITH_CERTIFICATE_ID.crt"]="/etc/ssl/example.com/fullchain.pem"
-    ["https://api.example.com/dl/REPLACE_WITH_CERTIFICATE_ID.key"]="/etc/ssl/example.com/privkey.pem"
+    ["https://ssl.example.com/dl/REPLACE_WITH_CERTIFICATE_CODE.crt"]="/etc/ssl/example.com/fullchain.pem"
+    ["https://ssl.example.com/dl/REPLACE_WITH_PRIVATE_KEY_CODE.key"]="/etc/ssl/example.com/privkey.pem"
 )
 
 # Track whether any certificate file changed.
@@ -54,7 +54,6 @@ for url in "${!urls_and_paths[@]}"; do
 
     echo
     echo "============================================================"
-    echo "URL : $url"
     echo "File: $local_path"
     echo "============================================================"
 
@@ -100,7 +99,7 @@ for url in "${!urls_and_paths[@]}"; do
         -o "$temp_file" \
         "$url"; then
 
-        echo "Warning: failed to download: $url"
+        echo "Warning: failed to download: $local_path"
 
         rm -f "$temp_file"
         continue
@@ -112,7 +111,7 @@ for url in "${!urls_and_paths[@]}"; do
     # --------------------------------------------------------
 
     if [ ! -s "$temp_file" ]; then
-        echo "Warning: downloaded file is empty: $url"
+        echo "Warning: downloaded file is empty: $local_path"
 
         rm -f "$temp_file"
         continue
@@ -132,7 +131,7 @@ for url in "${!urls_and_paths[@]}"; do
                     -noout \
                     >/dev/null 2>&1; then
 
-                    echo "Warning: invalid private key: $url"
+                    echo "Warning: invalid private key: $local_path"
 
                     rm -f "$temp_file"
                     continue
@@ -147,7 +146,7 @@ for url in "${!urls_and_paths[@]}"; do
                     -noout \
                     >/dev/null 2>&1; then
 
-                    echo "Warning: invalid certificate: $url"
+                    echo "Warning: invalid certificate: $local_path"
 
                     rm -f "$temp_file"
                     continue

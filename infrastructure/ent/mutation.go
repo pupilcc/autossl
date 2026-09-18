@@ -34,6 +34,8 @@ type CertMutation struct {
 	typ           string
 	id            *int
 	code          *string
+	cert_code     *string
+	key_code      *string
 	domain        *string
 	created_at    *time.Time
 	updated_at    *time.Time
@@ -175,6 +177,104 @@ func (m *CertMutation) OldCode(ctx context.Context) (v string, err error) {
 // ResetCode resets all changes to the "code" field.
 func (m *CertMutation) ResetCode() {
 	m.code = nil
+}
+
+// SetCertCode sets the "cert_code" field.
+func (m *CertMutation) SetCertCode(s string) {
+	m.cert_code = &s
+}
+
+// CertCode returns the value of the "cert_code" field in the mutation.
+func (m *CertMutation) CertCode() (r string, exists bool) {
+	v := m.cert_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCertCode returns the old "cert_code" field's value of the Cert entity.
+// If the Cert object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CertMutation) OldCertCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCertCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCertCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCertCode: %w", err)
+	}
+	return oldValue.CertCode, nil
+}
+
+// ClearCertCode clears the value of the "cert_code" field.
+func (m *CertMutation) ClearCertCode() {
+	m.cert_code = nil
+	m.clearedFields[cert.FieldCertCode] = struct{}{}
+}
+
+// CertCodeCleared returns if the "cert_code" field was cleared in this mutation.
+func (m *CertMutation) CertCodeCleared() bool {
+	_, ok := m.clearedFields[cert.FieldCertCode]
+	return ok
+}
+
+// ResetCertCode resets all changes to the "cert_code" field.
+func (m *CertMutation) ResetCertCode() {
+	m.cert_code = nil
+	delete(m.clearedFields, cert.FieldCertCode)
+}
+
+// SetKeyCode sets the "key_code" field.
+func (m *CertMutation) SetKeyCode(s string) {
+	m.key_code = &s
+}
+
+// KeyCode returns the value of the "key_code" field in the mutation.
+func (m *CertMutation) KeyCode() (r string, exists bool) {
+	v := m.key_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKeyCode returns the old "key_code" field's value of the Cert entity.
+// If the Cert object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CertMutation) OldKeyCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKeyCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKeyCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKeyCode: %w", err)
+	}
+	return oldValue.KeyCode, nil
+}
+
+// ClearKeyCode clears the value of the "key_code" field.
+func (m *CertMutation) ClearKeyCode() {
+	m.key_code = nil
+	m.clearedFields[cert.FieldKeyCode] = struct{}{}
+}
+
+// KeyCodeCleared returns if the "key_code" field was cleared in this mutation.
+func (m *CertMutation) KeyCodeCleared() bool {
+	_, ok := m.clearedFields[cert.FieldKeyCode]
+	return ok
+}
+
+// ResetKeyCode resets all changes to the "key_code" field.
+func (m *CertMutation) ResetKeyCode() {
+	m.key_code = nil
+	delete(m.clearedFields, cert.FieldKeyCode)
 }
 
 // SetDomain sets the "domain" field.
@@ -319,9 +419,15 @@ func (m *CertMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CertMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 6)
 	if m.code != nil {
 		fields = append(fields, cert.FieldCode)
+	}
+	if m.cert_code != nil {
+		fields = append(fields, cert.FieldCertCode)
+	}
+	if m.key_code != nil {
+		fields = append(fields, cert.FieldKeyCode)
 	}
 	if m.domain != nil {
 		fields = append(fields, cert.FieldDomain)
@@ -342,6 +448,10 @@ func (m *CertMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case cert.FieldCode:
 		return m.Code()
+	case cert.FieldCertCode:
+		return m.CertCode()
+	case cert.FieldKeyCode:
+		return m.KeyCode()
 	case cert.FieldDomain:
 		return m.Domain()
 	case cert.FieldCreatedAt:
@@ -359,6 +469,10 @@ func (m *CertMutation) OldField(ctx context.Context, name string) (ent.Value, er
 	switch name {
 	case cert.FieldCode:
 		return m.OldCode(ctx)
+	case cert.FieldCertCode:
+		return m.OldCertCode(ctx)
+	case cert.FieldKeyCode:
+		return m.OldKeyCode(ctx)
 	case cert.FieldDomain:
 		return m.OldDomain(ctx)
 	case cert.FieldCreatedAt:
@@ -380,6 +494,20 @@ func (m *CertMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCode(v)
+		return nil
+	case cert.FieldCertCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCertCode(v)
+		return nil
+	case cert.FieldKeyCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKeyCode(v)
 		return nil
 	case cert.FieldDomain:
 		v, ok := value.(string)
@@ -431,7 +559,14 @@ func (m *CertMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *CertMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(cert.FieldCertCode) {
+		fields = append(fields, cert.FieldCertCode)
+	}
+	if m.FieldCleared(cert.FieldKeyCode) {
+		fields = append(fields, cert.FieldKeyCode)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -444,6 +579,14 @@ func (m *CertMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *CertMutation) ClearField(name string) error {
+	switch name {
+	case cert.FieldCertCode:
+		m.ClearCertCode()
+		return nil
+	case cert.FieldKeyCode:
+		m.ClearKeyCode()
+		return nil
+	}
 	return fmt.Errorf("unknown Cert nullable field %s", name)
 }
 
@@ -453,6 +596,12 @@ func (m *CertMutation) ResetField(name string) error {
 	switch name {
 	case cert.FieldCode:
 		m.ResetCode()
+		return nil
+	case cert.FieldCertCode:
+		m.ResetCertCode()
+		return nil
+	case cert.FieldKeyCode:
+		m.ResetKeyCode()
 		return nil
 	case cert.FieldDomain:
 		m.ResetDomain()

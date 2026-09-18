@@ -79,6 +79,14 @@ export function deleteCertificate(token: string, code: string) {
   );
 }
 
+export function rotateDownloadCode(token: string, code: string, fileType: "crt" | "key") {
+  return backendRequest<void>(
+    `/${encodeURIComponent(code)}/rotate/${fileType}`,
+    { method: "POST" },
+    token,
+  );
+}
+
 export function downloadFromBackend(file: string, method: string) {
   return fetch(`${apiBaseUrl}/dl/${encodeURIComponent(file)}`, { method });
 }

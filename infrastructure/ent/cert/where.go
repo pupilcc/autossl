@@ -59,6 +59,16 @@ func Code(v string) predicate.Cert {
 	return predicate.Cert(sql.FieldEQ(FieldCode, v))
 }
 
+// CertCode applies equality check predicate on the "cert_code" field. It's identical to CertCodeEQ.
+func CertCode(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldEQ(FieldCertCode, v))
+}
+
+// KeyCode applies equality check predicate on the "key_code" field. It's identical to KeyCodeEQ.
+func KeyCode(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldEQ(FieldKeyCode, v))
+}
+
 // Domain applies equality check predicate on the "domain" field. It's identical to DomainEQ.
 func Domain(v string) predicate.Cert {
 	return predicate.Cert(sql.FieldEQ(FieldDomain, v))
@@ -137,6 +147,156 @@ func CodeEqualFold(v string) predicate.Cert {
 // CodeContainsFold applies the ContainsFold predicate on the "code" field.
 func CodeContainsFold(v string) predicate.Cert {
 	return predicate.Cert(sql.FieldContainsFold(FieldCode, v))
+}
+
+// CertCodeEQ applies the EQ predicate on the "cert_code" field.
+func CertCodeEQ(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldEQ(FieldCertCode, v))
+}
+
+// CertCodeNEQ applies the NEQ predicate on the "cert_code" field.
+func CertCodeNEQ(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldNEQ(FieldCertCode, v))
+}
+
+// CertCodeIn applies the In predicate on the "cert_code" field.
+func CertCodeIn(vs ...string) predicate.Cert {
+	return predicate.Cert(sql.FieldIn(FieldCertCode, vs...))
+}
+
+// CertCodeNotIn applies the NotIn predicate on the "cert_code" field.
+func CertCodeNotIn(vs ...string) predicate.Cert {
+	return predicate.Cert(sql.FieldNotIn(FieldCertCode, vs...))
+}
+
+// CertCodeGT applies the GT predicate on the "cert_code" field.
+func CertCodeGT(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldGT(FieldCertCode, v))
+}
+
+// CertCodeGTE applies the GTE predicate on the "cert_code" field.
+func CertCodeGTE(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldGTE(FieldCertCode, v))
+}
+
+// CertCodeLT applies the LT predicate on the "cert_code" field.
+func CertCodeLT(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldLT(FieldCertCode, v))
+}
+
+// CertCodeLTE applies the LTE predicate on the "cert_code" field.
+func CertCodeLTE(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldLTE(FieldCertCode, v))
+}
+
+// CertCodeContains applies the Contains predicate on the "cert_code" field.
+func CertCodeContains(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldContains(FieldCertCode, v))
+}
+
+// CertCodeHasPrefix applies the HasPrefix predicate on the "cert_code" field.
+func CertCodeHasPrefix(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldHasPrefix(FieldCertCode, v))
+}
+
+// CertCodeHasSuffix applies the HasSuffix predicate on the "cert_code" field.
+func CertCodeHasSuffix(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldHasSuffix(FieldCertCode, v))
+}
+
+// CertCodeIsNil applies the IsNil predicate on the "cert_code" field.
+func CertCodeIsNil() predicate.Cert {
+	return predicate.Cert(sql.FieldIsNull(FieldCertCode))
+}
+
+// CertCodeNotNil applies the NotNil predicate on the "cert_code" field.
+func CertCodeNotNil() predicate.Cert {
+	return predicate.Cert(sql.FieldNotNull(FieldCertCode))
+}
+
+// CertCodeEqualFold applies the EqualFold predicate on the "cert_code" field.
+func CertCodeEqualFold(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldEqualFold(FieldCertCode, v))
+}
+
+// CertCodeContainsFold applies the ContainsFold predicate on the "cert_code" field.
+func CertCodeContainsFold(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldContainsFold(FieldCertCode, v))
+}
+
+// KeyCodeEQ applies the EQ predicate on the "key_code" field.
+func KeyCodeEQ(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldEQ(FieldKeyCode, v))
+}
+
+// KeyCodeNEQ applies the NEQ predicate on the "key_code" field.
+func KeyCodeNEQ(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldNEQ(FieldKeyCode, v))
+}
+
+// KeyCodeIn applies the In predicate on the "key_code" field.
+func KeyCodeIn(vs ...string) predicate.Cert {
+	return predicate.Cert(sql.FieldIn(FieldKeyCode, vs...))
+}
+
+// KeyCodeNotIn applies the NotIn predicate on the "key_code" field.
+func KeyCodeNotIn(vs ...string) predicate.Cert {
+	return predicate.Cert(sql.FieldNotIn(FieldKeyCode, vs...))
+}
+
+// KeyCodeGT applies the GT predicate on the "key_code" field.
+func KeyCodeGT(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldGT(FieldKeyCode, v))
+}
+
+// KeyCodeGTE applies the GTE predicate on the "key_code" field.
+func KeyCodeGTE(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldGTE(FieldKeyCode, v))
+}
+
+// KeyCodeLT applies the LT predicate on the "key_code" field.
+func KeyCodeLT(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldLT(FieldKeyCode, v))
+}
+
+// KeyCodeLTE applies the LTE predicate on the "key_code" field.
+func KeyCodeLTE(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldLTE(FieldKeyCode, v))
+}
+
+// KeyCodeContains applies the Contains predicate on the "key_code" field.
+func KeyCodeContains(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldContains(FieldKeyCode, v))
+}
+
+// KeyCodeHasPrefix applies the HasPrefix predicate on the "key_code" field.
+func KeyCodeHasPrefix(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldHasPrefix(FieldKeyCode, v))
+}
+
+// KeyCodeHasSuffix applies the HasSuffix predicate on the "key_code" field.
+func KeyCodeHasSuffix(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldHasSuffix(FieldKeyCode, v))
+}
+
+// KeyCodeIsNil applies the IsNil predicate on the "key_code" field.
+func KeyCodeIsNil() predicate.Cert {
+	return predicate.Cert(sql.FieldIsNull(FieldKeyCode))
+}
+
+// KeyCodeNotNil applies the NotNil predicate on the "key_code" field.
+func KeyCodeNotNil() predicate.Cert {
+	return predicate.Cert(sql.FieldNotNull(FieldKeyCode))
+}
+
+// KeyCodeEqualFold applies the EqualFold predicate on the "key_code" field.
+func KeyCodeEqualFold(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldEqualFold(FieldKeyCode, v))
+}
+
+// KeyCodeContainsFold applies the ContainsFold predicate on the "key_code" field.
+func KeyCodeContainsFold(v string) predicate.Cert {
+	return predicate.Cert(sql.FieldContainsFold(FieldKeyCode, v))
 }
 
 // DomainEQ applies the EQ predicate on the "domain" field.

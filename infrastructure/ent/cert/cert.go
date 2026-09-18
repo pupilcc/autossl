@@ -15,6 +15,10 @@ const (
 	FieldID = "id"
 	// FieldCode holds the string denoting the code field in the database.
 	FieldCode = "code"
+	// FieldCertCode holds the string denoting the cert_code field in the database.
+	FieldCertCode = "cert_code"
+	// FieldKeyCode holds the string denoting the key_code field in the database.
+	FieldKeyCode = "key_code"
 	// FieldDomain holds the string denoting the domain field in the database.
 	FieldDomain = "domain"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -29,6 +33,8 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldCode,
+	FieldCertCode,
+	FieldKeyCode,
 	FieldDomain,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -64,6 +70,16 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByCode orders the results by the code field.
 func ByCode(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCode, opts...).ToFunc()
+}
+
+// ByCertCode orders the results by the cert_code field.
+func ByCertCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCertCode, opts...).ToFunc()
+}
+
+// ByKeyCode orders the results by the key_code field.
+func ByKeyCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldKeyCode, opts...).ToFunc()
 }
 
 // ByDomain orders the results by the domain field.

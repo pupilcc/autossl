@@ -11,6 +11,7 @@ func SSLRoutes(e *echo.Echo) {
 	e.HEAD("/dl/:file", downloadHead)
 	e.GET("/list", list)
 	e.POST("/generate", generate)
+	e.POST("/:code/rotate/:fileType", rotateDownloadCode)
 	e.DELETE("/:code", remove)
 }
 
@@ -36,4 +37,8 @@ func generate(c echo.Context) error {
 
 func remove(c echo.Context) error {
 	return application.DeleteCert(c)
+}
+
+func rotateDownloadCode(c echo.Context) error {
+	return application.RotateDownloadCode(c)
 }

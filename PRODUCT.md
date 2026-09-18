@@ -20,7 +20,7 @@ AutoSSL centralizes SSL certificate issuance and exposes stable certificate and 
 
 ## Positioning
 
-Certificate issuance, storage, renewal, and script-facing distribution remain in the existing Go service while the console provides a human-operated server-side interface.
+Certificate issuance, storage, and renewal remain in the Go service while the console is the only public entry point for human operations and script-facing downloads.
 
 ## Operating Context
 
@@ -29,6 +29,7 @@ Administrators sign in, inspect the certificate list, issue a certificate for a 
 ## Capabilities and Constraints
 
 - Browser requests for administrative operations terminate at the web server; the web server calls the Go API.
+- Certificate and private-key downloads terminate at the web server and use independently rotatable random URLs.
 - The console has a login page and one certificate-management page.
 - Certificate URLs are displayed for copying. The console does not provide download buttons.
 - The Go service and Node web service ship in the same container.
@@ -41,7 +42,7 @@ The repository contains the working Go API, ACME integration, SQLite repository,
 
 - Keep certificate operations explicit and easy to verify.
 - Keep backend credentials and tokens out of browser JavaScript.
-- Preserve stable script-facing certificate URLs.
+- Keep script-facing URLs stable until an administrator explicitly rotates them.
 - Prefer a compact operational interface over dashboard decoration.
 
 ## Accessibility & Inclusion

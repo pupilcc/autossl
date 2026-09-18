@@ -19,6 +19,10 @@ type Cert struct {
 	ID int `json:"id,omitempty"`
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
+	// CertCode holds the value of the "cert_code" field.
+	CertCode string `json:"cert_code,omitempty"`
+	// KeyCode holds the value of the "key_code" field.
+	KeyCode string `json:"key_code,omitempty"`
 	// Domain holds the value of the "domain" field.
 	Domain string `json:"domain,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -35,7 +39,7 @@ func (*Cert) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case cert.FieldID:
 			values[i] = new(sql.NullInt64)
-		case cert.FieldCode, cert.FieldDomain:
+		case cert.FieldCode, cert.FieldCertCode, cert.FieldKeyCode, cert.FieldDomain:
 			values[i] = new(sql.NullString)
 		case cert.FieldCreatedAt, cert.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -65,6 +69,18 @@ func (c *Cert) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field code", values[i])
 			} else if value.Valid {
 				c.Code = value.String
+			}
+		case cert.FieldCertCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field cert_code", values[i])
+			} else if value.Valid {
+				c.CertCode = value.String
+			}
+		case cert.FieldKeyCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field key_code", values[i])
+			} else if value.Valid {
+				c.KeyCode = value.String
 			}
 		case cert.FieldDomain:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -124,6 +140,12 @@ func (c *Cert) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", c.ID))
 	builder.WriteString("code=")
 	builder.WriteString(c.Code)
+	builder.WriteString(", ")
+	builder.WriteString("cert_code=")
+	builder.WriteString(c.CertCode)
+	builder.WriteString(", ")
+	builder.WriteString("key_code=")
+	builder.WriteString(c.KeyCode)
 	builder.WriteString(", ")
 	builder.WriteString("domain=")
 	builder.WriteString(c.Domain)

@@ -15,6 +15,8 @@ type Cert struct {
 func (Cert) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("code"),
+		field.String("cert_code").Optional().Unique(),
+		field.String("key_code").Optional().Unique(),
 		field.String("domain"),
 		field.Time("created_at").
 			Default(time.Now).

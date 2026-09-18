@@ -4,6 +4,7 @@ import {
   KeyRound,
   LoaderCircle,
   LogOut,
+  RefreshCw,
   ShieldCheck,
   Trash2,
 } from "lucide-react";
@@ -40,6 +41,7 @@ import {
   createCertificate,
   deleteCertificate,
   listCertificates,
+  rotateDownloadCode,
 } from "@/lib/backend.server";
 import { getLocale, messages, type Locale } from "@/lib/i18n";
 import {
@@ -105,6 +107,17 @@ export async function action({ request }: ActionFunctionArgs): Promise<ActionRes
       }
       await deleteCertificate(session.token, code);
       return { ok: true, message: text.deleted };
+    }
+
+    if (intent === "rotate") {
+      const code = String(formData.get("code") ?? "");
+      const fileType = String(formData.get("fileType") ?? "");
+      if (!/^[A-Za-z0-9_-]+$/.test(code) || (fileType !== "crt" && fileType !== "key")) {
+        return { ok: false, message: text.invalidCertificate };
+      }
+      const label = fileType === "crt" ? text.certificateUrl : text.privateKeyUrl;
+      await rotateDownloadCode(session.token, code, fileType);
+      return { ok: true, message: text.rotated(label) };
     }
 
     return { ok: false, message: text.unknownAction };
@@ -309,12 +322,66 @@ function DeleteCertificate({
   );
 }
 
+function RotateDownloadUrl({
+  code,
+  domain,
+  fileType,
+  label,
+  fetcher,
+  locale,
+}: {
+  code: string;
+  domain: string;
+  fileType: "crt" | "key";
+  label: string;
+  fetcher: ActionFetcher;
+  locale: Locale;
+}) {
+  const text = messages[locale].certificates;
+  const submitting = fetcher.state !== "idle";
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button type="button" variant="outline" disabled={submitting} aria-label={text.rotateLabel(label)}>
+          <RefreshCw aria-hidden="true" />
+          {text.rotate}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{text.rotateTitle(label, domain)}</AlertDialogTitle>
+          <AlertDialogDescription>{text.rotateDescription(label)}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={submitting}>{text.cancel}</AlertDialogCancel>
+          <AlertDialogAction
+            type="button"
+            disabled={submitting}
+            onClick={() =>
+              fetcher.submit(
+                { intent: "rotate", code, fileType },
+                { method: "post", defaultShouldRevalidate: false },
+              )
+            }
+          >
+            {submitting ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <RefreshCw aria-hidden="true" />}
+            {text.confirmRotate}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 export default function CertificatesPage() {
   const { certificates, locale } = useLoaderData<typeof loader>();
   const text = messages[locale].certificates;
   const deleteFetcher = useFetcher<ActionResult>();
+  const rotateFetcher = useFetcher<ActionResult>();
   const { revalidate } = useRevalidator();
   useActionToast(deleteFetcher, revalidate);
+  useActionToast(rotateFetcher, revalidate);
 
   return (
     <div className="min-h-screen">
@@ -422,7 +489,23 @@ export default function CertificatesPage() {
 
                     <div className="flex flex-wrap gap-2 lg:justify-end">
                       <CopyCertificate label={text.certificateUrl} value={certificate.cert} locale={locale} />
+                      <RotateDownloadUrl
+                        code={certificate.code}
+                        domain={certificate.domain}
+                        fileType="crt"
+                        label={text.certificateUrl}
+                        fetcher={rotateFetcher}
+                        locale={locale}
+                      />
                       <CopyCertificate label={text.privateKeyUrl} value={certificate.key} locale={locale} sensitive />
+                      <RotateDownloadUrl
+                        code={certificate.code}
+                        domain={certificate.domain}
+                        fileType="key"
+                        label={text.privateKeyUrl}
+                        fetcher={rotateFetcher}
+                        locale={locale}
+                      />
                       <DeleteCertificate
                         code={certificate.code}
                         domain={certificate.domain}

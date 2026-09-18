@@ -174,7 +174,7 @@ The 64px white top bar contains the shield mark and AutoSSL wordmark on the left
 
 ### Certificate Record
 
-Every record leads with the domain, then exposes the certificate and private-key URLs in monospace. Each URL has its own copy action, while delete stays visually separate and requires confirmation.
+Every record leads with the domain, then exposes the certificate and private-key URLs in monospace. Each URL has its own copy and confirmed rotation actions, while delete stays visually separate and requires confirmation.
 
 ## Do's and Don'ts
 

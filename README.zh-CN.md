@@ -77,14 +77,12 @@ services:
     container_name: autossl
     restart: always
     ports:
-      - "1323:1323"
       - "3000:3000"
     volumes:
       - data:/root/data
       - acme:/root/.acme.sh
     environment:
-      PUBLIC_API_URL: https://api.example.com
-      PUBLIC_CONSOLE_URL: https://ssl.example.com
+      DOMAIN: https://ssl.example.com
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: replace-with-a-long-random-password
       ACME_CA: letsencrypt
@@ -107,14 +105,13 @@ volumes:
 docker compose up -d
 ```
 
-配置 HTTPS 反向代理：将 `api.example.com` 转发到 Go API 的 `1323` 端口，将 `ssl.example.com` 转发到 Web 控制台的 `3000` 端口。登录后只需提交 `example.com` 这样的基础域名，AutoSSL 会自动加入通配符域名。
+配置 HTTPS 反向代理，将 `ssl.example.com` 转发到 Web 控制台的 `3000` 端口。Go API 仅在容器内监听 `127.0.0.1:1323`，不应直接公开。登录后只需提交 `example.com` 这样的基础域名，AutoSSL 会自动加入通配符域名。
 
 ## 配置项
 
 | 变量 | 用途 |
 | --- | --- |
-| `PUBLIC_API_URL` | Go API 的公开访问地址，用于生成 `/dl/...` 证书链接，请勿以 `/` 结尾。 |
-| `PUBLIC_CONSOLE_URL` | 允许提交管理操作的公开控制台 URL。 |
+| `DOMAIN` | 控制台公开 URL，用于限制管理操作来源和生成 `/dl/...` 下载链接，请勿以 `/` 结尾。 |
 | `ADMIN_USERNAME` | 控制台用户名。 |
 | `ADMIN_PASSWORD` | 控制台密码和 JWT 签名密钥，请使用足够长的随机值。 |
 | `ACME_CA` | acme.sh CA 名称，例如 `letsencrypt`。 |
@@ -149,6 +146,6 @@ docker compose up -d
 
 ## 证书分发
 
-控制台会为每张证书提供 `.crt` 和 `.key` URL。为了供部署脚本使用，这些下载路由不需要身份验证；请将私钥 URL 视为机密信息，并且只通过 HTTPS 暴露 AutoSSL。
+控制台会为每张证书提供 `.crt` 和 `.key` URL。两个下载码可单独轮换，轮换后旧 URL 会立即失效。私钥响应带有 `Cache-Control: no-store`；仍应将私钥 URL 视为机密信息，并且只通过 HTTPS 暴露 AutoSSL。
 
 在每台目标服务器上使用 [scripts/distribute-certificates.sh](scripts/distribute-certificates.sh)。替换 `urls_and_paths` 中的占位 URL 和路径，保留 `fullchain.pem` 与 `privkey.pem` 文件名，并以 root 身份运行。脚本会原子下载文件，在 OpenSSL 可用时校验内容，修正文件权限，并且只在文件变化且 `nginx -t` 成功后重新加载 Nginx。

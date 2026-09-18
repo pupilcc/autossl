@@ -3,12 +3,9 @@ package application
 import (
 	"autossl/domain/model"
 	"autossl/domain/service"
-	"autossl/infrastructure/acme"
 	"autossl/infrastructure/exception"
-	"autossl/infrastructure/util"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"path/filepath"
 )
 
 func Generate(c echo.Context) error {
@@ -25,8 +22,7 @@ func Generate(c echo.Context) error {
 	}
 
 	// Create ssl
-	code := util.GenerateID()
-	err := service.CreateCert(certCommand.Domain, code)
+	err := service.CreateCert(certCommand.Domain)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -47,6 +43,18 @@ func DeleteCert(c echo.Context) error {
 
 	err := service.DeleteCert(code)
 	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.NoContent(http.StatusNoContent)
+}
+
+func RotateDownloadCode(c echo.Context) error {
+	fileType := c.Param("fileType")
+	if fileType != "crt" && fileType != "key" {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid file type")
+	}
+
+	if err := service.RotateDownloadCode(c.Param("code"), fileType); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusNoContent)
@@ -74,27 +82,29 @@ func Upload(c echo.Context) error {
 }
 
 func Download(c echo.Context) error {
-	file := c.Param("file")
-	filePath := filepath.Join(acme.CertPath, file)
-
-	etag, err := service.Etag(filePath)
-	if err != nil {
-		return err
-	}
-	c.Response().Header().Set("ETag", etag)
-
-	return c.File(filePath)
+	return download(c, false)
 }
 
 func DownloadHead(c echo.Context) error {
-	file := c.Param("file")
-	filePath := filepath.Join(acme.CertPath, file)
+	return download(c, true)
+}
 
+func download(c echo.Context, head bool) error {
+	filePath, private, err := service.DownloadFile(c.Param("file"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound)
+	}
+	if private {
+		c.Response().Header().Set(echo.HeaderCacheControl, "no-store")
+	}
 	etag, err := service.Etag(filePath)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusNotFound)
 	}
 	c.Response().Header().Set("ETag", etag)
 
-	return c.NoContent(http.StatusOK)
+	if head {
+		return c.NoContent(http.StatusOK)
+	}
+	return c.File(filePath)
 }

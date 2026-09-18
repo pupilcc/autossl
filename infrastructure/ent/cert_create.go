@@ -26,6 +26,34 @@ func (cc *CertCreate) SetCode(s string) *CertCreate {
 	return cc
 }
 
+// SetCertCode sets the "cert_code" field.
+func (cc *CertCreate) SetCertCode(s string) *CertCreate {
+	cc.mutation.SetCertCode(s)
+	return cc
+}
+
+// SetNillableCertCode sets the "cert_code" field if the given value is not nil.
+func (cc *CertCreate) SetNillableCertCode(s *string) *CertCreate {
+	if s != nil {
+		cc.SetCertCode(*s)
+	}
+	return cc
+}
+
+// SetKeyCode sets the "key_code" field.
+func (cc *CertCreate) SetKeyCode(s string) *CertCreate {
+	cc.mutation.SetKeyCode(s)
+	return cc
+}
+
+// SetNillableKeyCode sets the "key_code" field if the given value is not nil.
+func (cc *CertCreate) SetNillableKeyCode(s *string) *CertCreate {
+	if s != nil {
+		cc.SetKeyCode(*s)
+	}
+	return cc
+}
+
 // SetDomain sets the "domain" field.
 func (cc *CertCreate) SetDomain(s string) *CertCreate {
 	cc.mutation.SetDomain(s)
@@ -148,6 +176,14 @@ func (cc *CertCreate) createSpec() (*Cert, *sqlgraph.CreateSpec) {
 	if value, ok := cc.mutation.Code(); ok {
 		_spec.SetField(cert.FieldCode, field.TypeString, value)
 		_node.Code = value
+	}
+	if value, ok := cc.mutation.CertCode(); ok {
+		_spec.SetField(cert.FieldCertCode, field.TypeString, value)
+		_node.CertCode = value
+	}
+	if value, ok := cc.mutation.KeyCode(); ok {
+		_spec.SetField(cert.FieldKeyCode, field.TypeString, value)
+		_node.KeyCode = value
 	}
 	if value, ok := cc.mutation.Domain(); ok {
 		_spec.SetField(cert.FieldDomain, field.TypeString, value)

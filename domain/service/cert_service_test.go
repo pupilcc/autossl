@@ -47,3 +47,25 @@ func TestCertificateDNSNames(t *testing.T) {
 		t.Fatalf("certificateDNSNames() = %q, want %q", got, template.DNSNames)
 	}
 }
+
+func TestDownloadTarget(t *testing.T) {
+	tests := []struct {
+		file      string
+		code      string
+		extension string
+		private   bool
+		ok        bool
+	}{
+		{file: "certCode.crt", code: "certCode", extension: ".crt", ok: true},
+		{file: "keyCode.key", code: "keyCode", extension: ".key", private: true, ok: true},
+		{file: ".crt"},
+		{file: "certCode.pem"},
+	}
+
+	for _, test := range tests {
+		code, extension, private, ok := downloadTarget(test.file)
+		if code != test.code || extension != test.extension || private != test.private || ok != test.ok {
+			t.Errorf("downloadTarget(%q) = (%q, %q, %t, %t)", test.file, code, extension, private, ok)
+		}
+	}
+}

@@ -1,4 +1,4 @@
 export * from "./build/server/index.js";
 
-const consoleUrl = process.env.PUBLIC_CONSOLE_URL;
-export const allowedActionOrigins = consoleUrl ? [new URL(consoleUrl).host] : false;
+const publicUrl = process.env.DOMAIN;
+export const allowedActionOrigins = publicUrl ? [new URL(publicUrl).host] : false;

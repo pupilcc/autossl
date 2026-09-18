@@ -32,7 +32,7 @@ func ExistCert(domain string) bool {
 	return byDomain != nil
 }
 
-func CreateCert(domain string, code string) error {
+func CreateCert(domain string) error {
 	domain = baseDomain(domain)
 	lock, _ := createCertLocks.LoadOrStore(domain, &sync.Mutex{})
 	mutex := lock.(*sync.Mutex)
@@ -41,6 +41,12 @@ func CreateCert(domain string, code string) error {
 
 	if ExistCert(domain) {
 		return exception.CertificateExistsErr(domain)
+	}
+
+	code := util.GenerateID()
+	keyCode := util.GenerateID()
+	for keyCode == code {
+		keyCode = util.GenerateID()
 	}
 
 	err := os.MkdirAll(acme.CertPath, 0755)
@@ -60,8 +66,10 @@ func CreateCert(domain string, code string) error {
 
 	repo := repository.GetCertRepo()
 	cert := &model.Cert{
-		Code:   code,
-		Domain: domain,
+		Code:     code,
+		CertCode: code,
+		KeyCode:  keyCode,
+		Domain:   domain,
 	}
 	err = repo.Create(cert)
 	if err != nil {
@@ -82,13 +90,17 @@ func ImportCert(domainName string, certFile *multipart.FileHeader, keyFile *mult
 		return exception.CertificateExistsErr(domainName)
 	}
 
-	code := util.GenerateID()
-	err := CreateCert(domainName, code)
+	err := CreateCert(domainName)
 	if err != nil {
 		return err
 	}
 
-	err = uploadFile(code, certFile, keyFile)
+	cert, err := repository.GetCertRepo().FindByDomain(baseDomain(domainName))
+	if err != nil {
+		return err
+	}
+
+	err = uploadFile(cert.Code, certFile, keyFile)
 	if err != nil {
 		return err
 	}
@@ -103,18 +115,83 @@ func ListCert() ([]*model.Cert, error) {
 		return nil, err
 	}
 
-	dm := os.Getenv("PUBLIC_API_URL")
+	dm := strings.TrimRight(os.Getenv("DOMAIN"), "/")
 	url := dm + "/dl/"
 	for _, cert := range list {
 		cert.Domain = baseDomain(cert.Domain)
 		cert.DNSNames = certificateDNSNames(filepath.Join(acme.CertPath, cert.Code+".crt"))
-		certLink := url + cert.Code + ".crt"
-		keyLink := url + cert.Code + ".key"
+		certCode := cert.CertCode
+		if certCode == "" {
+			certCode = cert.Code
+		}
+		keyCode := cert.KeyCode
+		if keyCode == "" {
+			keyCode = cert.Code
+		}
+		certLink := url + certCode + ".crt"
+		keyLink := url + keyCode + ".key"
 		cert.Cert = certLink
 		cert.Key = keyLink
 	}
 
 	return list, nil
+}
+
+func DownloadFile(file string) (string, bool, error) {
+	code, extension, private, ok := downloadTarget(file)
+	if !ok {
+		return "", false, os.ErrNotExist
+	}
+
+	repo := repository.GetCertRepo()
+	var cert *model.Cert
+	var err error
+	if private {
+		cert, err = repo.FindByKeyCode(code)
+	} else {
+		cert, err = repo.FindByCertCode(code)
+	}
+	if err != nil {
+		return "", private, err
+	}
+	return filepath.Join(acme.CertPath, cert.Code+extension), private, nil
+}
+
+func downloadTarget(file string) (code string, extension string, private bool, ok bool) {
+	if code, ok = strings.CutSuffix(file, ".crt"); ok && code != "" {
+		return code, ".crt", false, true
+	}
+	if code, ok = strings.CutSuffix(file, ".key"); ok && code != "" {
+		return code, ".key", true, true
+	}
+	return "", "", false, false
+}
+
+func RotateDownloadCode(code string, fileType string) error {
+	repo := repository.GetCertRepo()
+	cert, err := repo.FindByCode(code)
+	if err != nil {
+		return err
+	}
+
+	certCode := cert.CertCode
+	if certCode == "" {
+		certCode = cert.Code
+	}
+	keyCode := cert.KeyCode
+	if keyCode == "" {
+		keyCode = cert.Code
+	}
+
+	newCode := util.GenerateID()
+	for newCode == certCode || newCode == keyCode {
+		newCode = util.GenerateID()
+	}
+
+	if fileType == "crt" {
+		return repo.UpdateCertCode(code, newCode)
+	}
+	return repo.UpdateKeyCode(code, newCode)
 }
 
 func certificateDNSNames(path string) []string {
