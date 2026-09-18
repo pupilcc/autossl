@@ -18,7 +18,6 @@ import { Label } from "@/components/ui/label";
 import { BackendError, login } from "@/lib/backend.server";
 import { getLocale, messages } from "@/lib/i18n";
 import {
-  assertSameOrigin,
   createSessionCookie,
   getSession,
 } from "@/lib/session.server";
@@ -33,7 +32,6 @@ export function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  assertSameOrigin(request);
   const text = messages[getLocale(request)].login;
   const formData = await request.formData();
   const username = String(formData.get("username") ?? "").trim();

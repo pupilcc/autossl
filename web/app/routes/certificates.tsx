@@ -45,7 +45,6 @@ import {
 } from "@/lib/backend.server";
 import { getLocale, messages, type Locale } from "@/lib/i18n";
 import {
-  assertSameOrigin,
   destroySessionCookie,
   requireSession,
 } from "@/lib/session.server";
@@ -74,7 +73,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs): Promise<ActionResult | Response> {
-  assertSameOrigin(request);
   const locale = getLocale(request);
   const text = messages[locale].certificates;
   const session = requireSession(request);

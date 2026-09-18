@@ -67,10 +67,3 @@ export function destroySessionCookie(request: Request) {
   if (id) sessions.delete(id);
   return serializeCookie(request, "", 0);
 }
-
-export function assertSameOrigin(request: Request) {
-  const origin = request.headers.get("Origin");
-  if (origin && new URL(origin).host !== new URL(request.url).host) {
-    throw new Response("Invalid request origin", { status: 403 });
-  }
-}
