@@ -87,6 +87,8 @@ export function rotateDownloadCode(token: string, code: string, fileType: "crt" 
   );
 }
 
-export function downloadFromBackend(file: string, method: string) {
-  return fetch(`${apiBaseUrl}/dl/${encodeURIComponent(file)}`, { method });
+export function downloadFromBackend(file: string, method: string, authorization: string | null) {
+  const headers = new Headers();
+  if (authorization) headers.set("Authorization", authorization);
+  return fetch(`${apiBaseUrl}/dl/${encodeURIComponent(file)}`, { method, headers });
 }

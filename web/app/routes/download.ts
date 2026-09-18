@@ -8,9 +8,20 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     throw new Response("Not found", { status: 404 });
   }
 
-  const response = await downloadFromBackend(file, request.method === "HEAD" ? "HEAD" : "GET");
+  const response = await downloadFromBackend(
+    file,
+    request.method === "HEAD" ? "HEAD" : "GET",
+    request.headers.get("Authorization"),
+  );
   const headers = new Headers();
-  for (const name of ["cache-control", "content-type", "content-length", "etag", "last-modified"]) {
+  for (const name of [
+    "cache-control",
+    "content-type",
+    "content-length",
+    "etag",
+    "last-modified",
+    "www-authenticate",
+  ]) {
     const value = response.headers.get(name);
     if (value) headers.set(name, value);
   }

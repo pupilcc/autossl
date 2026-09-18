@@ -6,6 +6,7 @@ set -u
 # ============================================================
 
 SSL_GROUP="ssl-cert"
+DOWNLOAD_AUTH_TOKEN="${DOWNLOAD_AUTH_TOKEN:-}"
 
 declare -A urls_and_paths=(
     ["https://ssl.example.com/dl/REPLACE_WITH_CERTIFICATE_CODE.crt"]="/etc/ssl/example.com/fullchain.pem"
@@ -96,6 +97,7 @@ for url in "${!urls_and_paths[@]}"; do
         --retry 3 \
         --retry-delay 2 \
         --connect-timeout 10 \
+        --header "Authorization: Bearer $DOWNLOAD_AUTH_TOKEN" \
         -o "$temp_file" \
         "$url"; then
 

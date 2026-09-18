@@ -85,6 +85,8 @@ services:
       DOMAIN: https://ssl.example.com
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: replace-with-a-long-random-password
+      DOWNLOAD_AUTH_ENABLED: "true"
+      DOWNLOAD_AUTH_TOKEN: replace-with-a-long-random-token
       ACME_CA: letsencrypt
       ACME_EMAIL: admin@example.com
       ACME_DNS: dns_cf
@@ -114,6 +116,8 @@ docker compose up -d
 | `DOMAIN` | 控制台公开 URL，用于限制管理操作来源和生成 `/dl/...` 下载链接，请勿以 `/` 结尾。 |
 | `ADMIN_USERNAME` | 控制台用户名。 |
 | `ADMIN_PASSWORD` | 控制台密码和 JWT 签名密钥，请使用足够长的随机值。 |
+| `DOWNLOAD_AUTH_ENABLED` | 仅 `true` 启用下载鉴权；未设置或其他值保持原有的免令牌下载。 |
+| `DOWNLOAD_AUTH_TOKEN` | 下载鉴权令牌；启用下载鉴权时必填。 |
 | `ACME_CA` | acme.sh CA 名称，例如 `letsencrypt`。 |
 | `ACME_EMAIL` | ACME 账户邮箱。 |
 | `ACME_DNS` | acme.sh DNS 钩子；Cloudflare 验证区域使用 `dns_cf`。 |
@@ -146,6 +150,30 @@ docker compose up -d
 
 ## 证书分发
 
-控制台会为每张证书提供 `.crt` 和 `.key` URL。两个下载码可单独轮换，轮换后旧 URL 会立即失效。私钥响应带有 `Cache-Control: no-store`；仍应将私钥 URL 视为机密信息，并且只通过 HTTPS 暴露 AutoSSL。
+控制台会为每张证书提供独立的 `.crt` 和 `.key` URL。两个下载码可以分别轮换，轮换后对应的旧 URL 会立即失效。私钥响应带有 `Cache-Control: no-store`；仍应将私钥 URL 视为机密信息，并且只通过 HTTPS 暴露 AutoSSL。
 
-在每台目标服务器上使用 [scripts/distribute-certificates.sh](scripts/distribute-certificates.sh)。替换 `urls_and_paths` 中的占位 URL 和路径，保留 `fullchain.pem` 与 `privkey.pem` 文件名，并以 root 身份运行。脚本会原子下载文件，在 OpenSSL 可用时校验内容，修正文件权限，并且只在文件变化且 `nginx -t` 成功后重新加载 Nginx。
+### 下载鉴权
+
+`DOWNLOAD_AUTH_ENABLED` 只配置在 AutoSSL 服务端，目标服务器上的分发脚本不读取这个开关。
+
+| AutoSSL 服务端配置 | 下载要求 |
+| --- | --- |
+| `DOWNLOAD_AUTH_ENABLED=false` 或未设置 | 无需令牌。 |
+| `DOWNLOAD_AUTH_ENABLED=true` | 必须设置 `DOWNLOAD_AUTH_TOKEN`，请求必须携带 `Authorization: Bearer <DOWNLOAD_AUTH_TOKEN>`。缺少或错误的令牌会返回 `401 Unauthorized`。 |
+
+令牌应通过请求头传递，不要追加到下载 URL。
+
+### 使用分发脚本
+
+在每台目标服务器上使用 [scripts/distribute-certificates.sh](scripts/distribute-certificates.sh)：
+
+1. 替换 `urls_and_paths` 中的占位 URL 和目标路径。
+2. 保留目标文件名 `fullchain.pem` 和 `privkey.pem`。
+3. 根据 AutoSSL 服务端的下载鉴权配置，以 root 身份运行脚本：
+
+| AutoSSL 服务端配置 | 命令 |
+| --- | --- |
+| 鉴权关闭 | `sudo scripts/distribute-certificates.sh` |
+| 鉴权开启 | `sudo env DOWNLOAD_AUTH_TOKEN=your-token scripts/distribute-certificates.sh` |
+
+脚本会原子下载文件，在 OpenSSL 可用时校验内容，修正文件权限，并且只在文件变化且 `nginx -t` 成功后重新加载 Nginx。

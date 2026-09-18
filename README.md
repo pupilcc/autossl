@@ -85,6 +85,8 @@ services:
       DOMAIN: https://ssl.example.com
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: replace-with-a-long-random-password
+      DOWNLOAD_AUTH_ENABLED: "true"
+      DOWNLOAD_AUTH_TOKEN: replace-with-a-long-random-token
       ACME_CA: letsencrypt
       ACME_EMAIL: admin@example.com
       ACME_DNS: dns_cf
@@ -114,6 +116,8 @@ Configure the HTTPS reverse proxy so `ssl.example.com` reaches the web console o
 | `DOMAIN` | Public console URL used to restrict administrative action origins and build `/dl/...` download links; omit the trailing slash. |
 | `ADMIN_USERNAME` | Console username. |
 | `ADMIN_PASSWORD` | Console password and JWT signing secret; use a long random value. |
+| `DOWNLOAD_AUTH_ENABLED` | Only `true` enables download authentication; unset or any other value preserves unauthenticated downloads. |
+| `DOWNLOAD_AUTH_TOKEN` | Download authentication token; required when download authentication is enabled. |
 | `ACME_CA` | acme.sh CA name, such as `letsencrypt`. |
 | `ACME_EMAIL` | ACME account email. |
 | `ACME_DNS` | acme.sh DNS hook; use `dns_cf` for the Cloudflare validation zone. |
@@ -146,6 +150,30 @@ If this occurs, disable Universal SSL under **SSL/TLS -> Edge Certificates** for
 
 ## Certificate distribution
 
-The console provides `.crt` and `.key` URLs for every certificate. Each download code can be rotated independently, and rotation immediately invalidates the old URL. Private-key responses include `Cache-Control: no-store`; still treat the URL as a secret and expose AutoSSL only over HTTPS.
+The console provides separate `.crt` and `.key` URLs for every certificate. Each download code can be rotated independently, and rotation immediately invalidates the corresponding old URL. Private-key responses include `Cache-Control: no-store`; still treat private-key URLs as secrets and expose AutoSSL only over HTTPS.
 
-Use [scripts/distribute-certificates.sh](scripts/distribute-certificates.sh) on each target server. Replace the placeholder URLs and paths in `urls_and_paths`, keep the filenames `fullchain.pem` and `privkey.pem`, and run the script as root. It downloads files atomically, validates them with OpenSSL when available, fixes permissions, and reloads Nginx only when a file changed and `nginx -t` succeeds.
+### Download authentication
+
+`DOWNLOAD_AUTH_ENABLED` is configured only on the AutoSSL server. The distribution script on target servers does not read this switch.
+
+| AutoSSL server configuration | Download requirement |
+| --- | --- |
+| `DOWNLOAD_AUTH_ENABLED=false` or unset | No token is required. |
+| `DOWNLOAD_AUTH_ENABLED=true` | `DOWNLOAD_AUTH_TOKEN` is required, and requests must include `Authorization: Bearer <DOWNLOAD_AUTH_TOKEN>`. A missing or incorrect token returns `401 Unauthorized`. |
+
+Send the token in the request header, not in the download URL.
+
+### Using the distribution script
+
+Use [scripts/distribute-certificates.sh](scripts/distribute-certificates.sh) on each target server:
+
+1. Replace the placeholder URLs and destination paths in `urls_and_paths`.
+2. Keep the destination filenames `fullchain.pem` and `privkey.pem`.
+3. Run the script as root according to the AutoSSL server's download authentication setting:
+
+| AutoSSL server configuration | Command |
+| --- | --- |
+| Authentication disabled | `sudo scripts/distribute-certificates.sh` |
+| Authentication enabled | `sudo env DOWNLOAD_AUTH_TOKEN=your-token scripts/distribute-certificates.sh` |
+
+The script downloads files atomically, validates them with OpenSSL when available, fixes permissions, and reloads Nginx only when a file changed and `nginx -t` succeeds.

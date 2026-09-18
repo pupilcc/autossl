@@ -41,7 +41,9 @@ func main() {
 
 	// Routes
 	api.IndexRoutes(e)
-	api.SSLRoutes(e)
+	if err := api.SSLRoutes(e); err != nil {
+		log.Fatal(err)
+	}
 	api.LoginRoutes(e)
 
 	// Init acme.sh
