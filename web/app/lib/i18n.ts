@@ -29,6 +29,8 @@ export const messages = {
       rotated: (label: string) => `${label} rotated.`,
       unknownAction: "Unknown action.",
       operationFailed: "The operation failed. Please try again later.",
+      incorrectTxtRecord:
+        "DNS validation returned an incorrect TXT record. Remove conflicting or stale _acme-challenge TXT records. If the domain uses Cloudflare, confirm another edge certificate is available, disable Universal SSL, wait for DNS caches to expire, and try again.",
       issueTitle: "01 / Issue certificate",
       dnsVerification: "DNS-01 validation",
       baseDomain: "Base domain",
@@ -103,6 +105,8 @@ export const messages = {
       rotated: (label: string) => `${label}已轮换。`,
       unknownAction: "未知操作。",
       operationFailed: "操作失败，请稍后重试。",
+      incorrectTxtRecord:
+        "DNS 验证返回了错误的 TXT 记录。请删除冲突或过期的 _acme-challenge TXT 记录；如使用 Cloudflare，请确认已有其他边缘证书后关闭 Universal SSL，等待 DNS 缓存过期再重试。",
       issueTitle: "01 / 签发证书",
       dnsVerification: "DNS-01 验证",
       baseDomain: "基础域名",

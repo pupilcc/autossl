@@ -15,6 +15,7 @@ export class BackendError extends Error {
   constructor(
     message: string,
     public readonly status: number,
+    public readonly code?: string,
   ) {
     super(message);
   }
@@ -32,13 +33,15 @@ async function backendRequest<T>(
   const response = await fetch(`${apiBaseUrl}${path}`, { ...init, headers });
   if (!response.ok) {
     let message = `Backend request failed (${response.status})`;
+    let code: string | undefined;
     try {
-      const body = (await response.json()) as { message?: string };
+      const body = (await response.json()) as { code?: string; message?: string };
       if (body.message) message = body.message;
+      code = body.code;
     } catch {
       // Keep the status-based message for non-JSON responses.
     }
-    throw new BackendError(message, response.status);
+    throw new BackendError(message, response.status, code);
   }
 
   if (response.status === 204 || response.headers.get("content-length") === "0") {

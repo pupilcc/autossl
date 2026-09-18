@@ -125,6 +125,9 @@ export async function action({ request }: ActionFunctionArgs): Promise<ActionRes
         headers: { "Set-Cookie": destroySessionCookie(request) },
       });
     }
+    if (error instanceof BackendError && error.code === "acme_incorrect_txt_record") {
+      return { ok: false, message: text.incorrectTxtRecord };
+    }
     return {
       ok: false,
       message:

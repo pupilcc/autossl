@@ -1,6 +1,7 @@
 package acme
 
 import (
+	"errors"
 	"os/exec"
 	"slices"
 	"testing"
@@ -13,6 +14,13 @@ func TestExecIssueExitStatus(t *testing.T) {
 
 	if err := execIssue(exec.Command("sh", "-c", "exit 1", "--cron")); err != nil {
 		t.Fatalf("expected cron exit status 1 to succeed: %v", err)
+	}
+}
+
+func TestExecIssueIncorrectTXTRecord(t *testing.T) {
+	cmd := exec.Command("sh", "-c", "echo 'Verification error details: Incorrect TXT record'; exit 1")
+	if err := execIssue(cmd); !errors.Is(err, ErrIncorrectTXTRecord) {
+		t.Fatalf("execIssue() error = %v, want %v", err, ErrIncorrectTXTRecord)
 	}
 }
 

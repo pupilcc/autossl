@@ -1,6 +1,9 @@
 package acme
 
 import (
+	"bytes"
+	"errors"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -11,6 +14,8 @@ import (
 )
 
 var CertPath = "./data/cert"
+
+var ErrIncorrectTXTRecord = errors.New("DNS verification returned an incorrect TXT record")
 
 func Issue(name string) error {
 	dns := os.Getenv("ACME_DNS")
@@ -73,10 +78,15 @@ func execIssue(cmd *exec.Cmd) error {
 	defer os.Remove(header.Name())
 
 	cmd.Env = append(cmd.Environ(), "HTTP_HEADER="+header.Name())
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stdout
+	var output bytes.Buffer
+	stream := io.MultiWriter(os.Stdout, &output)
+	cmd.Stdout = stream
+	cmd.Stderr = stream
 	err = cmd.Run()
 	if err != nil {
+		if strings.Contains(output.String(), "Incorrect TXT record") {
+			return ErrIncorrectTXTRecord
+		}
 		// Check if this is a cron operation and exit status is 1
 		// acme.sh returns exit status 1 when no certificates need renewal during cron
 		if isCronOperation(cmd) {

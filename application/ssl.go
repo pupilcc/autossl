@@ -3,7 +3,9 @@ package application
 import (
 	"autossl/domain/model"
 	"autossl/domain/service"
+	"autossl/infrastructure/acme"
 	"autossl/infrastructure/exception"
+	"errors"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -24,6 +26,12 @@ func Generate(c echo.Context) error {
 	// Create ssl
 	err := service.CreateCert(certCommand.Domain)
 	if err != nil {
+		if errors.Is(err, acme.ErrIncorrectTXTRecord) {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"code":    "acme_incorrect_txt_record",
+				"message": err.Error(),
+			})
+		}
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
