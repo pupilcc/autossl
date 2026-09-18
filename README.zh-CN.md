@@ -73,7 +73,7 @@ AutoSSL 每天在容器时间 01:30 运行 `acme.sh --cron`。请保留所有 CN
 ```yaml
 services:
   autossl:
-    image: ghcr.io/pupilcc/autossl:master
+    image: ghcr.io/pupilcc/autossl:latest
     container_name: autossl
     restart: always
     ports:

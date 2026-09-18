@@ -73,7 +73,7 @@ Create `docker-compose.yml`:
 ```yaml
 services:
   autossl:
-    image: ghcr.io/pupilcc/autossl:master
+    image: ghcr.io/pupilcc/autossl:latest
     container_name: autossl
     restart: always
     ports:
